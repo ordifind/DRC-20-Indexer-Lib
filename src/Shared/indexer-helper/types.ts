@@ -3,8 +3,8 @@ import { Protocol_Symbol } from "./config";
 export enum ValidMethods {
   deploy = "deploy",
   mint = "mint",
-  transfer = "transfer",
-  inscribe_transfer = "inscribe-transfer",
+  transfer = "transfer0",
+  inscribe_transfer = "transfer",
 }
 
 export enum BalanceUpdateTypes {

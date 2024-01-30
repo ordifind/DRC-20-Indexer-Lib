@@ -93,7 +93,7 @@ const StartIndexer = async () => {
 
     await IndexerQuery.UpdatedLastScannedBlock(LastBlock);
 
-    await Sleep(0.5); //sleep for 5sec and reindex
+    await Sleep(2); //sleep for 5sec and reindex
 
     await StartIndexer();
   } catch (error) {
