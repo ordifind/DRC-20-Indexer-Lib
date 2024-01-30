@@ -68,6 +68,8 @@ const StartIndexer = async () => {
           BlocksToIndex[BlocksToIndex.length - 1]
         }  `
       );
+      await Sleep(5); //sleep for 5sec and reindex
+
       await StartIndexer();
       return;
     }
@@ -82,6 +84,8 @@ const StartIndexer = async () => {
           BlocksToIndex[0]
         } to ${BlocksToIndex[BlocksToIndex.length - 1]}  `
       );
+      await Sleep(5); //sleep for 5sec and reindex
+
       await StartIndexer();
     }
 
@@ -93,8 +97,7 @@ const StartIndexer = async () => {
 
     await IndexerQuery.UpdatedLastScannedBlock(LastBlock);
 
-    await Sleep(2); //sleep for 5sec and reindex
-
+    await Sleep(5); //sleep for 5sec and reindex
     await StartIndexer();
   } catch (error) {
     throw error;
