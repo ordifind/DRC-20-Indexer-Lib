@@ -22,6 +22,7 @@ export const BufferToString = (Buffer_: string): string => {
 
 export const ValidatePayloads = (data: DOGEDRC): boolean => {
   if (data.p !== Protocol_Symbol) return false;
+  const DecimalReg = /[eE]/;
 
   if (!data.tick) return false;
 
@@ -34,6 +35,13 @@ export const ValidatePayloads = (data: DOGEDRC): boolean => {
   if (data.lim && typeof data.lim !== "string") return false;
 
   if (data.max && typeof data.max !== "string") return false;
+
+  if (data.amt && isNaN(data.amt)) return false;
+
+  if (data.amt && DecimalReg.test(String(data.amt))) return false;
+
+  if (data.lim && isNaN(data.lim)) return false;
+  if (data.max && isNaN(data.max)) return false;
 
   if (
     data.amt &&
@@ -118,7 +126,7 @@ export const UpdateBalanceValue = (
 ): bigint => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? Add(amount, IsSameTickExistinDB[balanceType])
+      ? Add(amount, BigInt(IsSameTickExistinDB[balanceType]))
       : IsSameTickExistinDB[balanceType];
   } else {
     return amount;

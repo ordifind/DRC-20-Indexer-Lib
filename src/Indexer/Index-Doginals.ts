@@ -119,7 +119,6 @@ const IndexDoginals = async (data: Doginals[]) => {
         );
 
         if (typeof ValidateMint !== "bigint") return;
-
         IsTokenDeployed.MintedAmount = Add(MintedAmount, ValidateMint);
         IsTokenDeployed.MintedBlock = BigInt(inscriptionData.block);
 
