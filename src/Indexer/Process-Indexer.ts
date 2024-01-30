@@ -53,6 +53,7 @@ const StartIndexer = async () => {
     }
 
     const BlockData = await DataQuery.LoadInscriptions(BlocksToIndex);
+    console.log(BlockData?.length);
 
     LastBlock = BlocksToIndex[BlocksToIndex.length - 1] + 1;
 
