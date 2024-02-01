@@ -89,7 +89,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "Token Already Deployed",
             event: "deploy",
@@ -127,7 +127,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
-          receiver: inscriptionData.receiver || "",
+          receiver: inscriptionData.sender || "",
           isValid: true,
           event: "deploy",
         });
@@ -145,7 +145,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "Token Not Deployed",
             event: "mint",
@@ -162,7 +162,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "Token Already 100% Minted",
             event: "mint",
@@ -184,7 +184,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: ValidateMint,
             event: "mint",
@@ -192,11 +192,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
 
-        IsTokenDeployed.MintedAmount = Add(MintedAmount, MintedAmount);
+        IsTokenDeployed.MintedAmount = Add(MintedAmount, ValidateMint);
         IsTokenDeployed.MintedBlock = BigInt(inscriptionData.block);
-
-        if (IsTokenDeployed.MintedAmount === IsTokenDeployed.supply)
-          IsTokenDeployed.isMinted = true;
 
         //Now Check if User Exist in Balance Cache or Not
 
@@ -224,7 +221,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
-          receiver: inscriptionData.receiver || "",
+          receiver: inscriptionData.sender || "",
           isValid: true,
           event: "mint",
         });
@@ -299,7 +296,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "Token Not Deployed",
             event: "inscribe-transfer",
@@ -339,7 +336,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "User or Token did not exist",
             event: "inscribe-transfer",
@@ -357,7 +354,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
-            receiver: inscriptionData.receiver || "",
+            receiver: inscriptionData.sender || "",
             isValid: false,
             reasonIgnore: "User Balance is less then Transfer Amount",
             event: "inscribe-transfer",
@@ -389,7 +386,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
-          receiver: inscriptionData.receiver || "",
+          receiver: inscriptionData.sender || "",
           isValid: true,
           event: "inscribe-transfer",
         });
@@ -447,8 +444,9 @@ const IndexDoginals = async (data: Doginals[]) => {
         (a) => a.MintedAmount !== BigInt(0)
       );
 
-      if (ValidUpdateStates.length === 0) return;
-      await TokenQuery.UpdateTokenState(ValidUpdateStates);
+      if (ValidUpdateStates.length !== 0) {
+        await TokenQuery.UpdateTokenState(ValidUpdateStates);
+      }
     }
 
     if (DoginalsLogs.length !== 0) {
