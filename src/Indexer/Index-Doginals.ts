@@ -182,10 +182,12 @@ const IndexDoginals = async (data: Doginals[]) => {
           Number(MintedAmount)
         );
 
+        console.log(ValidateMint);
+
         if (typeof ValidateMint !== "number") {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: DecimalsToNumber(Number(ValidateMint)),
+            amount: DecimalsToNumber(Number(UserMintAmount)),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -196,6 +198,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           });
           continue;
         }
+
         IsTokenDeployed.MintedAmount = Add(
           BigInt(MintedAmount),
           DecimalsToNumber(ValidateMint)
