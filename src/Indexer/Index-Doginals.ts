@@ -182,8 +182,6 @@ const IndexDoginals = async (data: Doginals[]) => {
           Number(MintedAmount)
         );
 
-        console.log(ValidateMint);
-
         if (typeof ValidateMint !== "number") {
           DoginalsLogs.push({
             tick: DRCData.tick,
