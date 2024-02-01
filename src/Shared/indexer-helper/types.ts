@@ -50,7 +50,7 @@ export interface DoginalsDeployment {
   time: number;
   block: number;
   isMinted: boolean;
-  completedBlock?: bigint;
+  completedBlock?: number;
 }
 
 export interface DeployedCache {
@@ -59,7 +59,7 @@ export interface DeployedCache {
   limit: bigint;
   MintedAmount: bigint;
   isMinted: boolean;
-  MintedBlock: bigint;
+  MintedBlock: number;
 }
 
 export type BalanceData = {

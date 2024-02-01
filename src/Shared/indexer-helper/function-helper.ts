@@ -1,3 +1,4 @@
+import { Add, Sub } from "../utils/decimalsConvert";
 import { Protocol_Symbol } from "./config";
 import {
   BalanceData,
@@ -96,14 +97,6 @@ export const GetAddressToLoadBalance = (data: Doginals[]): string[] => {
   return UniqueAddressList;
 };
 
-export const Sub = (a: bigint, b: bigint): bigint => {
-  return a - b;
-};
-
-export const Add = (a: bigint, b: bigint): bigint => {
-  return a + b;
-};
-
 export const CheckUpdateType = (
   IsUserExistinDB: BalanceDoginals | undefined,
   IsSameTickExistinDB: BalanceData | undefined
@@ -126,7 +119,7 @@ export const UpdateBalanceValue = (
 ): bigint => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? Add(amount, BigInt(IsSameTickExistinDB[balanceType]))
+      ? Add(amount, IsSameTickExistinDB[balanceType])
       : IsSameTickExistinDB[balanceType];
   } else {
     return amount;
@@ -138,7 +131,7 @@ export const ValidateMintPayloads = (
   amt: number,
   max: number,
   minted: number
-): bigint | string => {
+): number | string => {
   try {
     const LimitDecimals = new Decimal(limit);
     const amtDecimals = new Decimal(amt);
@@ -157,9 +150,9 @@ export const ValidateMintPayloads = (
       !new Decimal(SupplyLeftToMint).isZero()
     ) {
       const IsAmountLast = SupplyLeftToMint;
-      return BigInt(IsAmountLast);
+      return IsAmountLast;
     } else if (!new Decimal(SupplyLeftToMint).isZero()) {
-      return BigInt(amt);
+      return amt;
     }
     return "No Supply Left to cover mint";
   } catch (error) {
@@ -234,8 +227,4 @@ export const FormatBalance = (data: BalanceDoginals[]) => {
 
 export const Sleep = async (timer: number = 20): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, timer * 1000));
-};
-
-export const DecimalToLargeNumber = (number: number): number => {
-  return number * 1e18;
 };
