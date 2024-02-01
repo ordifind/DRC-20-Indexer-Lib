@@ -119,8 +119,8 @@ export const UpdateBalanceValue = (
 ): bigint => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? Add(amount, IsSameTickExistinDB[balanceType])
-      : IsSameTickExistinDB[balanceType];
+      ? Add(amount, BigInt(IsSameTickExistinDB[balanceType]))
+      : BigInt(IsSameTickExistinDB[balanceType]);
   } else {
     return amount;
   }

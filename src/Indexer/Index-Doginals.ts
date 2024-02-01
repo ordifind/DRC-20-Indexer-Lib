@@ -373,7 +373,6 @@ const IndexDoginals = async (data: Doginals[]) => {
 
           continue;
         }
-
         const NewTransferableBalance = Add(
           UserTransferAmount,
           TransferAbleBalance
