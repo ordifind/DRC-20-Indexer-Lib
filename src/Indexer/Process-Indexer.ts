@@ -68,7 +68,7 @@ const StartIndexer = async () => {
           BlocksToIndex[BlocksToIndex.length - 1]
         }  `
       );
-      await Sleep(5); //sleep for 5sec and reindex
+      await Sleep(1); //sleep for 5sec and reindex
 
       await StartIndexer();
       return;
@@ -84,7 +84,7 @@ const StartIndexer = async () => {
           BlocksToIndex[0]
         } to ${BlocksToIndex[BlocksToIndex.length - 1]}  `
       );
-      await Sleep(5); //sleep for 5sec and reindex
+      await Sleep(1); //sleep for 5sec and reindex
 
       await StartIndexer();
     }
