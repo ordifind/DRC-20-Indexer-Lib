@@ -235,3 +235,7 @@ export const FormatBalance = (data: BalanceDoginals[]) => {
 export const Sleep = async (timer: number = 20): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, timer * 1000));
 };
+
+export const DecimalToLargeNumber = (number: number): number => {
+  return number * 1e18;
+};
