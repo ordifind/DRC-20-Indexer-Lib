@@ -136,6 +136,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         });
       } else if (DRCData.op === ValidMethods.mint) {
         //Check if Token is Deployed
+        if (!DRCData.amt) continue;
 
         const IsTokenDeployed = DeployedCache.find(
           (a) => a.tick === DRCData.tick
@@ -294,6 +295,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           });
         }
       } else if (DRCData.op === ValidMethods.inscribe_transfer) {
+        if (!DRCData.amt) continue;
+
         const IsTokenExistInCache = DeployedCache.find(
           (a) => a.tick === DRCData.tick
         );
