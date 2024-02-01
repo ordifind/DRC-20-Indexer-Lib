@@ -2,9 +2,14 @@ import {
   MongoCollectionBalance,
   MongoCollectionInscribed,
   MongoDatabase,
+  MongoEventLogs,
 } from "../../indexer-helper/config";
 import { FormatBalance } from "../../indexer-helper/function-helper";
-import { BalanceDoginals, InscribedData } from "../../indexer-helper/types";
+import {
+  BalanceDoginals,
+  DoginalsLogs,
+  InscribedData,
+} from "../../indexer-helper/types";
 import GetConnection from "./connection";
 
 const BalanceQuery = {
@@ -40,7 +45,20 @@ const BalanceQuery = {
       const data = await collection?.find(Query).toArray();
 
       return data;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  StoreEventLogs: async (eventData: DoginalsLogs[]) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabase);
+      const collection = db?.collection(MongoEventLogs);
+      await collection?.insertMany(eventData);
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

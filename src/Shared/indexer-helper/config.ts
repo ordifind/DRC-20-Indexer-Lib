@@ -30,5 +30,7 @@ export const MongoTransactions = Process.transactions || "";
 
 export const MongoDatabaseMain = Process.MongoDatabaseMain;
 
+export const MongoEventLogs = Process.MongoEventLogs || "";
+
 export const MongoCollectionIndexerStatus =
   Process.MongoCollectionIndexerStatus;

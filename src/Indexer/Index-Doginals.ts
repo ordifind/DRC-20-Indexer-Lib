@@ -4,6 +4,7 @@ import {
   DeployedCache,
   Doginals,
   DoginalsDeployment,
+  DoginalsLogs,
   ValidMethods,
 } from "../Shared/indexer-helper/types";
 import TokenQuery from "../Shared/db-lib/conn/Token-Query";
@@ -21,6 +22,10 @@ import Decimal from "decimal.js";
 
 const IndexDoginals = async (data: Doginals[]) => {
   try {
+    //Doginals Logs
+
+    const DoginalsLogs: DoginalsLogs[] = [];
+
     //Token Deployment
     const DeployedCache: DeployedCache[] = [];
     const DeploymentData: DoginalsDeployment[] = [];
@@ -66,7 +71,9 @@ const IndexDoginals = async (data: Doginals[]) => {
 
     for (const Doginals of data) {
       const { inscriptionData, DRCData } = Doginals;
+
       const Sender = inscriptionData.sender;
+
       if (DRCData.op === ValidMethods.deploy) {
         //lets check if the Tick is on the cahce
 
@@ -74,7 +81,21 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        if (IsTokenExistInCache) continue;
+        if (IsTokenExistInCache) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            limit: BigInt(DRCData.max || 0),
+            max: BigInt(DRCData.lim || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Token Already Deployed",
+            event: "deploy",
+          });
+          continue;
+        }
 
         DeployedCache.push({
           tick: DRCData.tick,
@@ -98,6 +119,18 @@ const IndexDoginals = async (data: Doginals[]) => {
           txid: inscriptionData.hash,
           completedBlock: BigInt(0),
         });
+
+        DoginalsLogs.push({
+          tick: DRCData.tick,
+          limit: BigInt(DRCData.max || 0),
+          max: BigInt(DRCData.lim || 0),
+          inscripition_id: inscriptionData.inscriptionId,
+          txid: inscriptionData.hash,
+          block: inscriptionData.block,
+          receiver: inscriptionData.receiver || "",
+          isValid: true,
+          event: "deploy",
+        });
       } else if (DRCData.op === ValidMethods.mint) {
         //Check if Token is Deployed
 
@@ -105,11 +138,37 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        if (!IsTokenDeployed) continue; //token not Deployed Yet
+        if (!IsTokenDeployed) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Token Not Deployed",
+            event: "mint",
+          });
+          continue;
+        } //token not Deployed Yet
 
         const { supply, MintedAmount, isMinted, limit } = IsTokenDeployed;
 
-        if (isMinted) continue; //token minted
+        if (isMinted) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Token Already 100% Minted",
+            event: "mint",
+          });
+          continue;
+        } //token minted
 
         const ValidateMint: bigint | string = ValidateMintPayloads(
           Number(limit),
@@ -118,9 +177,26 @@ const IndexDoginals = async (data: Doginals[]) => {
           Number(MintedAmount)
         );
 
-        if (typeof ValidateMint !== "bigint") return;
-        IsTokenDeployed.MintedAmount = Add(MintedAmount, ValidateMint);
+        if (typeof ValidateMint !== "bigint") {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: ValidateMint,
+            event: "mint",
+          });
+          continue;
+        }
+
+        IsTokenDeployed.MintedAmount = Add(MintedAmount, MintedAmount);
         IsTokenDeployed.MintedBlock = BigInt(inscriptionData.block);
+
+        if (IsTokenDeployed.MintedAmount === IsTokenDeployed.supply)
+          IsTokenDeployed.isMinted = true;
 
         //Now Check if User Exist in Balance Cache or Not
 
@@ -142,6 +218,18 @@ const IndexDoginals = async (data: Doginals[]) => {
             (a) => a?.tick === Doginals.DRCData.tick
           );
 
+        DoginalsLogs.push({
+          tick: DRCData.tick,
+          amount: BigInt(DRCData.amt || 0),
+          inscripition_id: inscriptionData.inscriptionId,
+          txid: inscriptionData.hash,
+          block: inscriptionData.block,
+          receiver: inscriptionData.receiver || "",
+          isValid: true,
+          event: "mint",
+        });
+
+        //lets process update
         if (IsUserInBalanceToStore && !IsUserHoldingSameTokenInStore) {
           IsUserInBalanceToStore.holding.push({
             tick: Doginals.DRCData.tick,
@@ -204,7 +292,20 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        if (!IsTokenExistInCache) continue;
+        if (!IsTokenExistInCache) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Token Not Deployed",
+            event: "inscribe-transfer",
+          });
+          continue;
+        }
 
         let BalanceTree: BalanceData | undefined;
 
@@ -231,19 +332,49 @@ const IndexDoginals = async (data: Doginals[]) => {
           );
         }
 
-        if (!BalanceTree) continue;
+        if (!BalanceTree) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "User or Token did not exist",
+            event: "inscribe-transfer",
+          });
+          continue;
+        }
 
         const TransferAbleBalance = BalanceTree.transferable;
         const AmountBalance = BalanceTree.amount;
 
-        if (new Decimal(DRCData.amt || 0).lt(Number(AmountBalance))) continue;
+        if (new Decimal(DRCData.amt || 0).lt(Number(AmountBalance))) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: BigInt(DRCData.amt || 0),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "User Balance is less then Transfer Amount",
+            event: "inscribe-transfer",
+          });
+
+          continue;
+        }
 
         const NewTransferableBalance = Add(
           BigInt(DRCData.amt || 0),
-          TransferAbleBalance
+          BigInt(TransferAbleBalance)
         );
 
-        const NewAmountBalance = Sub(BigInt(DRCData.amt || 0), AmountBalance);
+        const NewAmountBalance = Sub(
+          BigInt(DRCData.amt || 0),
+          BigInt(AmountBalance)
+        );
 
         //Saved Inscribe-Data
 
@@ -252,14 +383,25 @@ const IndexDoginals = async (data: Doginals[]) => {
           address: inscriptionData.sender,
         });
 
+        DoginalsLogs.push({
+          tick: DRCData.tick,
+          amount: BigInt(DRCData.amt || 0),
+          inscripition_id: inscriptionData.inscriptionId,
+          txid: inscriptionData.hash,
+          block: inscriptionData.block,
+          receiver: inscriptionData.receiver || "",
+          isValid: true,
+          event: "inscribe-transfer",
+        });
+
         if (IsBalanceinCache) {
           IsBalanceinCache.holding = IsBalanceinCache.holding.map((e) => {
             return e.tick !== e.tick
               ? e
               : {
                   tick: e.tick,
-                  amount: Sub(e.amount, BigInt(DRCData.amt || 0)),
-                  transferable: Add(e.amount, BigInt(DRCData.amt || 0)),
+                  amount: Sub(BigInt(e.amount), BigInt(DRCData.amt || 0)),
+                  transferable: Add(BigInt(e.amount), BigInt(DRCData.amt || 0)),
                   updateTypes: e.updateTypes,
                 };
           });
@@ -307,6 +449,10 @@ const IndexDoginals = async (data: Doginals[]) => {
 
       if (ValidUpdateStates.length === 0) return;
       await TokenQuery.UpdateTokenState(ValidUpdateStates);
+    }
+
+    if (DoginalsLogs.length !== 0) {
+      await BalanceQuery.StoreEventLogs(DoginalsLogs);
     }
   } catch (error) {
     throw error;

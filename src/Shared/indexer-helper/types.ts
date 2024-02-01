@@ -78,3 +78,18 @@ export interface InscribedData {
   address: string;
   inscribed_id: string;
 }
+
+export interface DoginalsLogs {
+  tick: string;
+  amount?: bigint;
+  limit?: bigint;
+  max?: bigint;
+  block: number;
+  inscripition_id: string;
+  txid: string;
+  sender?: string;
+  receiver: string;
+  isValid: boolean;
+  reasonIgnore?: string;
+  event: "deploy" | "mint" | "inscribe-transfer" | "transfer";
+}

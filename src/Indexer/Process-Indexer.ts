@@ -53,7 +53,6 @@ const StartIndexer = async () => {
     }
 
     const BlockData = await DataQuery.LoadInscriptions(BlocksToIndex);
-    console.log(BlockData?.length);
 
     LastBlock = BlocksToIndex[BlocksToIndex.length - 1] + 1;
 
@@ -98,7 +97,7 @@ const StartIndexer = async () => {
 
     await IndexerQuery.UpdatedLastScannedBlock(LastBlock);
 
-    await Sleep(5); //sleep for 5sec and reindex
+    await Sleep(1); //sleep for 5sec and reindex
     await StartIndexer();
   } catch (error) {
     throw error;
