@@ -404,7 +404,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         if (IsBalanceinCache) {
           IsBalanceinCache.holding = IsBalanceinCache.holding.map((e) => {
-            return e.tick !== e.tick
+            return e.tick !== DRCData.tick
               ? e
               : {
                   tick: e.tick,
