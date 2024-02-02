@@ -142,7 +142,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const UserMintAmount = DecimalsToNumber(Number(DRCData.amt) || 0);
+        const UserMintAmount = DecimalsToNumber(Number(DRCData.amt));
 
         if (!IsTokenDeployed) {
           DoginalsLogs.push({
@@ -178,7 +178,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         const ValidateMint: number | string = ValidateMintPayloads(
           Number(limit),
-          Number(DRCData.amt),
+          Number(UserMintAmount),
           Number(supply),
           Number(MintedAmount)
         );
