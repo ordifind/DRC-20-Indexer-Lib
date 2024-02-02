@@ -13,7 +13,11 @@ import Decimal from "decimal.js";
 export const DecodeJSON = <T>(jsonData: string): T | undefined => {
   try {
     const JSONDecode = JSON.parse(BufferToString(jsonData));
-    return JSONDecode;
+
+    const tick: string = JSONDecode?.tick.toLowerCase();
+
+    if (!tick) return;
+    return { ...JSONDecode, tick: tick };
   } catch (error) {}
 };
 
