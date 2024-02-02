@@ -142,7 +142,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const UserMintAmount = DecimalsToNumber(DRCData.amt || 0);
+        const UserMintAmount = DecimalsToNumber(Number(DRCData.amt) || 0);
 
         if (!IsTokenDeployed) {
           DoginalsLogs.push({
@@ -186,7 +186,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (typeof ValidateMint !== "number") {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: DecimalsToNumber(Number(UserMintAmount)),
+            amount: UserMintAmount,
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
