@@ -358,6 +358,9 @@ const IndexDoginals = async (data: Doginals[]) => {
         const TransferAbleBalance = BalanceTree.transferable;
         const AmountBalance = BalanceTree.amount;
 
+        if (new Decimal(Number(AmountBalance)).isNeg())
+          throw Error("Neg Balance found !");
+
         if (new Decimal(Number(UserTransferAmount)).lt(Number(AmountBalance))) {
           DoginalsLogs.push({
             tick: DRCData.tick,
@@ -378,7 +381,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           TransferAbleBalance
         );
 
-        const NewAmountBalance = Sub(UserTransferAmount, AmountBalance);
+        const NewAmountBalance = Sub(AmountBalance, UserTransferAmount);
 
         //Saved Inscribe-Data
 
