@@ -409,7 +409,7 @@ const IndexDoginals = async (data: Doginals[]) => {
               : {
                   tick: e.tick,
                   amount: Sub(e.amount, UserTransferAmount),
-                  transferable: Add(e.amount, UserTransferAmount),
+                  transferable: Add(e.transferable, UserTransferAmount),
                   updateTypes: e.updateTypes,
                 };
           });
