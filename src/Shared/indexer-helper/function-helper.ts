@@ -131,31 +131,31 @@ export const UpdateBalanceValue = (
 };
 
 export const ValidateMintPayloads = (
-  limit: number,
-  amt: number,
-  max: number,
-  minted: number
-): number | string => {
+  limit: bigint,
+  amt: bigint,
+  max: bigint,
+  minted: bigint
+): bigint | string => {
   try {
-    const LimitDecimals = new Decimal(limit);
-    const amtDecimals = new Decimal(amt);
-    const maxDecimals = new Decimal(max);
-    const MintedDecimals = new Decimal(minted);
+    const LimitDecimals = new Decimal(Number(limit));
+    const amtDecimals = new Decimal(Number(amt));
+    const maxDecimals = new Decimal(Number(max));
+    const MintedDecimals = new Decimal(Number(minted));
 
     if (amtDecimals.gt(LimitDecimals)) return "Amount is greater then Limit";
 
     if (maxDecimals.lte(MintedDecimals)) return "Token Minted Already";
 
-    const SupplyLeftToMint: number = Number(Sub(BigInt(max), BigInt(minted)));
+    const SupplyLeftToMint: bigint = Sub(BigInt(max), BigInt(minted));
     //1000 - 990
 
     if (
-      new Decimal(SupplyLeftToMint).lt(LimitDecimals) &&
-      !new Decimal(SupplyLeftToMint).isZero()
+      new Decimal(Number(SupplyLeftToMint)).lt(LimitDecimals) &&
+      !new Decimal(Number(SupplyLeftToMint)).isZero()
     ) {
       const IsAmountLast = SupplyLeftToMint;
       return IsAmountLast;
-    } else if (!new Decimal(SupplyLeftToMint).isZero()) {
+    } else if (!new Decimal(Number(SupplyLeftToMint)).isZero()) {
       return amt;
     }
     return "No Supply Left to cover mint";

@@ -176,14 +176,14 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         } //token minted
 
-        const ValidateMint: number | string = ValidateMintPayloads(
-          Number(limit),
-          Number(UserMintAmount),
-          Number(supply),
-          Number(MintedAmount)
+        const ValidateMint: bigint | string = ValidateMintPayloads(
+          limit,
+          UserMintAmount,
+          supply,
+          MintedAmount
         );
 
-        if (typeof ValidateMint !== "number") {
+        if (typeof ValidateMint !== "bigint") {
           DoginalsLogs.push({
             tick: DRCData.tick,
             amount: UserMintAmount,
@@ -198,10 +198,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
 
-        IsTokenDeployed.MintedAmount = Add(
-          BigInt(MintedAmount),
-          DecimalsToNumber(ValidateMint)
-        );
+        IsTokenDeployed.MintedAmount = Add(BigInt(MintedAmount), ValidateMint);
 
         IsTokenDeployed.MintedBlock = inscriptionData.block;
 
@@ -243,7 +240,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             amount: UpdateBalanceValue(
               IsUserInBalanceDataBase,
               IsUserHoldingSameTokenInDataBase,
-              DecimalsToNumber(ValidateMint),
+              ValidateMint,
               true,
               "amount"
             ),
@@ -264,7 +261,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             if (e.tick !== DRCData.tick) return e;
             return {
               tick: e.tick,
-              amount: Add(e.amount, DecimalsToNumber(ValidateMint)),
+              amount: Add(e.amount, ValidateMint),
               transferable: UpdateBalanceValue(
                 IsUserInBalanceDataBase,
                 IsUserHoldingSameTokenInDataBase,
@@ -284,7 +281,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             holding: [
               {
                 tick: Doginals.DRCData.tick,
-                amount: DecimalsToNumber(ValidateMint),
+                amount: ValidateMint,
                 transferable: BigInt(0),
                 updateTypes: CheckUpdateType(
                   IsUserInBalanceDataBase,
