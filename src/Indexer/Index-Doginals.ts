@@ -358,10 +358,11 @@ const IndexDoginals = async (data: Doginals[]) => {
         const TransferAbleBalance = BalanceTree.transferable;
         const AmountBalance = BalanceTree.amount;
 
-        if (new Decimal(Number(AmountBalance)).isNeg())
-          throw Error("Neg Balance found !");
+        if (new Decimal(Number(AmountBalance)).isNeg()) {
+          throw Error(`Neg Balance found !`);
+        }
 
-        if (new Decimal(Number(UserTransferAmount)).lt(Number(AmountBalance))) {
+        if (new Decimal(Number(UserTransferAmount)).gt(Number(AmountBalance))) {
           DoginalsLogs.push({
             tick: DRCData.tick,
             amount: UserTransferAmount,
