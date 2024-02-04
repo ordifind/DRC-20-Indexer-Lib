@@ -87,6 +87,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
+        console.log(inscriptionData);
+
         const Supply = NumberToDecimals(DRCData.max || 0);
         const Limit = NumberToDecimals(DRCData.lim || 0);
 
