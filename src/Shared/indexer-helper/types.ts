@@ -41,9 +41,9 @@ export interface Doginals {
 
 export interface DoginalsDeployment {
   tick: string;
-  supply: Decimal;
-  limit: Decimal;
-  MintedAmount: Decimal;
+  supply: string;
+  limit: string;
+  MintedAmount: string;
   deployer: string;
   txid: string;
   inscriptionID: string;
@@ -64,8 +64,8 @@ export interface DeployedCache {
 
 export type BalanceData = {
   tick: string;
-  amount: Decimal;
-  transferable: Decimal;
+  amount: string;
+  transferable: string;
   updateTypes?: BalanceUpdateTypes;
 };
 
@@ -81,9 +81,9 @@ export interface InscribedData {
 
 export interface DoginalsLogs {
   tick: string;
-  amount?: Decimal;
-  limit?: Decimal;
-  max?: Decimal;
+  amount?: string;
+  limit?: string;
+  max?: string;
   block: number;
   inscripition_id: string;
   txid: string;

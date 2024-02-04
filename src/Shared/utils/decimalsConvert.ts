@@ -11,3 +11,11 @@ export const AddDecimals = (numberA: Decimal, numberB: Decimal): Decimal => {
 export const SubDecimals = (numberA: Decimal, numberB: Decimal): Decimal => {
   return numberA.sub(numberB);
 };
+
+export const DecimalToString = (number: Decimal): string => {
+  return number.toString();
+};
+
+export const StringToDecimals = (number: string): Decimal => {
+  return NumberToDecimals(Number(number));
+};

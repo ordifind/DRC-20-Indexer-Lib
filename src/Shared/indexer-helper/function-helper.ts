@@ -1,4 +1,9 @@
-import { AddDecimals, SubDecimals } from "../utils/decimalsConvert";
+import {
+  AddDecimals,
+  DecimalToString,
+  StringToDecimals,
+  SubDecimals,
+} from "../utils/decimalsConvert";
 import { Protocol_Symbol } from "./config";
 import {
   BalanceData,
@@ -120,13 +125,18 @@ export const UpdateBalanceValue = (
   amount: Decimal,
   sum: boolean,
   balanceType: "amount" | "transferable"
-): Decimal => {
+): string => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? AddDecimals(amount, IsSameTickExistinDB[balanceType])
+      ? DecimalToString(
+          AddDecimals(
+            amount,
+            StringToDecimals(IsSameTickExistinDB[balanceType])
+          )
+        )
       : IsSameTickExistinDB[balanceType];
   } else {
-    return amount;
+    return DecimalToString(amount);
   }
 };
 
@@ -147,11 +157,12 @@ export const ValidateMintPayloads = (
     if (SupplyLeftToMint.lt(limit) && SupplyLeftToMint.isZero()) {
       const IsAmountLast = SupplyLeftToMint;
       return IsAmountLast;
-    } else if (!new Decimal(Number(SupplyLeftToMint)).isZero()) {
+    } else if (!SupplyLeftToMint.isZero()) {
       return amt;
     }
     return "No Supply Left to cover mint";
   } catch (error) {
+    throw error;
     return "Invalid Number";
   }
 };

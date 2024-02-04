@@ -19,7 +19,9 @@ import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import Decimal from "decimal.js";
 import {
   AddDecimals,
+  DecimalToString,
   NumberToDecimals,
+  StringToDecimals,
   SubDecimals,
 } from "../Shared/utils/decimalsConvert";
 
@@ -65,9 +67,9 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DeployedCache.push({
           tick: tick,
-          supply: supply,
-          limit: limit,
-          MintedAmount: MintedAmount,
+          supply: StringToDecimals(supply),
+          limit: StringToDecimals(limit),
+          MintedAmount: StringToDecimals(MintedAmount),
           isMinted,
           MintedBlock: completedBlock,
         });
@@ -91,8 +93,8 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (IsTokenExistInCache) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            limit: Supply,
-            max: Limit,
+            limit: DecimalToString(Supply),
+            max: DecimalToString(Limit),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -115,11 +117,11 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DeploymentData.push({
           tick: DRCData.tick,
-          supply: Supply,
-          limit: Limit,
+          supply: DecimalToString(Supply),
+          limit: DecimalToString(Limit),
           deployer: inscriptionData.sender,
           block: inscriptionData.block,
-          MintedAmount: NumberToDecimals(0),
+          MintedAmount: "0",
           isMinted: false,
           time: inscriptionData.time,
           inscriptionID: inscriptionData.inscriptionId,
@@ -129,8 +131,8 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DoginalsLogs.push({
           tick: DRCData.tick,
-          limit: Supply,
-          max: Limit,
+          limit: DecimalToString(Supply),
+          max: DecimalToString(Limit),
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
@@ -151,7 +153,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (!IsTokenDeployed) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserMintAmount,
+            amount: DecimalToString(UserMintAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -168,7 +170,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (isMinted) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserMintAmount,
+            amount: DecimalToString(UserMintAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -190,7 +192,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (typeof ValidateMint === "string") {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserMintAmount,
+            amount: DecimalToString(UserMintAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -227,7 +229,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DoginalsLogs.push({
           tick: DRCData.tick,
-          amount: UserMintAmount,
+          amount: DecimalToString(UserMintAmount),
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
@@ -264,7 +266,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             if (e.tick !== DRCData.tick) return e;
             return {
               tick: e.tick,
-              amount: AddDecimals(e.amount, ValidateMint),
+              amount: AddDecimals(StringToDecimals(e.amount), ValidateMint),
               transferable: UpdateBalanceValue(
                 IsUserInBalanceDataBase,
                 IsUserHoldingSameTokenInDataBase,
@@ -284,8 +286,8 @@ const IndexDoginals = async (data: Doginals[]) => {
             holding: [
               {
                 tick: Doginals.DRCData.tick,
-                amount: ValidateMint,
-                transferable: NumberToDecimals(0),
+                amount: DecimalToString(ValidateMint),
+                transferable: "0",
                 updateTypes: CheckUpdateType(
                   IsUserInBalanceDataBase,
                   IsUserHoldingSameTokenInDataBase
@@ -306,7 +308,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (!IsTokenExistInCache) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserTransferAmount,
+            amount: DecimalToString(UserTransferAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -346,7 +348,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (!BalanceTree) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserTransferAmount,
+            amount: DecimalToString(UserTransferAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -358,8 +360,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
 
-        const TransferAbleBalance = BalanceTree.transferable;
-        const AmountBalance = BalanceTree.amount;
+        const TransferAbleBalance = StringToDecimals(BalanceTree.transferable);
+        const AmountBalance = StringToDecimals(BalanceTree.amount);
 
         if (AmountBalance.isNeg()) {
           throw Error(`Neg Balance found !`);
@@ -368,7 +370,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         if (UserTransferAmount.gt(AmountBalance)) {
           DoginalsLogs.push({
             tick: DRCData.tick,
-            amount: UserTransferAmount,
+            amount: DecimalToString(UserTransferAmount),
             inscripition_id: inscriptionData.inscriptionId,
             txid: inscriptionData.hash,
             block: inscriptionData.block,
@@ -396,7 +398,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DoginalsLogs.push({
           tick: DRCData.tick,
-          amount: UserTransferAmount,
+          amount: DecimalToString(UserTransferAmount),
           inscripition_id: inscriptionData.inscriptionId,
           txid: inscriptionData.hash,
           block: inscriptionData.block,
@@ -411,8 +413,15 @@ const IndexDoginals = async (data: Doginals[]) => {
               ? e
               : {
                   tick: e.tick,
-                  amount: SubDecimals(e.amount, UserTransferAmount),
-                  transferable: AddDecimals(e.transferable, UserTransferAmount),
+                  amount: DecimalToString(
+                    SubDecimals(StringToDecimals(e.amount), UserTransferAmount)
+                  ),
+                  transferable: DecimalToString(
+                    AddDecimals(
+                      StringToDecimals(e.transferable),
+                      UserTransferAmount
+                    )
+                  ),
                   updateTypes: e.updateTypes,
                 };
           });
@@ -424,8 +433,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           if (IsAddressPresentInCache) {
             IsAddressPresentInCache.holding.push({
               tick: DRCData.tick,
-              amount: NewAmountBalance,
-              transferable: NewTransferableBalance,
+              amount: DecimalToString(NewAmountBalance),
+              transferable: DecimalToString(NewTransferableBalance),
             });
           } else {
             BalanceData.push({
@@ -433,8 +442,8 @@ const IndexDoginals = async (data: Doginals[]) => {
               holding: [
                 {
                   tick: DRCData.tick,
-                  amount: NewAmountBalance,
-                  transferable: NewTransferableBalance,
+                  amount: DecimalToString(NewAmountBalance),
+                  transferable: DecimalToString(NewTransferableBalance),
                 },
               ],
             });
