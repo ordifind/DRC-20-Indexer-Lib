@@ -148,8 +148,6 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        console.log(inscriptionData.inscriptionId);
-
         const UserMintAmount = DecimalsToNumber(Number(DRCData.amt));
 
         if (!IsTokenDeployed) {
