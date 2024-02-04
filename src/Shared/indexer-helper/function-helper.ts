@@ -154,7 +154,7 @@ export const ValidateMintPayloads = (
     const SupplyLeftToMint: Decimal = SubDecimals(max, minted);
     //1000 - 990
 
-    if (SupplyLeftToMint.lt(limit) && SupplyLeftToMint.isZero()) {
+    if (SupplyLeftToMint.lt(limit) && !SupplyLeftToMint.isZero()) {
       const IsAmountLast = SupplyLeftToMint;
       return IsAmountLast;
     } else if (!SupplyLeftToMint.isZero()) {
