@@ -67,9 +67,9 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DeployedCache.push({
           tick: tick,
-          supply: supply,
-          limit: limit,
-          MintedAmount: MintedAmount,
+          supply: StringToBigint(supply),
+          limit: StringToBigint(limit),
+          MintedAmount: StringToBigint(MintedAmount),
           isMinted,
           MintedBlock: completedBlock,
         });
@@ -117,11 +117,11 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DeploymentData.push({
           tick: DRCData.tick,
-          supply: Supply,
-          limit: Limit,
+          supply: BigIntToString(Supply),
+          limit: BigIntToString(Limit),
           deployer: inscriptionData.sender,
           block: inscriptionData.block,
-          MintedAmount: BigInt(0),
+          MintedAmount: BigIntToString(BigInt(0)),
           isMinted: false,
           time: inscriptionData.time,
           inscriptionID: inscriptionData.inscriptionId,
@@ -360,8 +360,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
 
-        const TransferAbleBalance = BigInt(BalanceTree.transferable);
-        const AmountBalance = BigInt(BalanceTree.amount);
+        const TransferAbleBalance = StringToBigint(BalanceTree.transferable);
+        const AmountBalance = StringToBigint(BalanceTree.amount);
 
         if (new Decimal(Number(AmountBalance)).isNeg()) {
           throw Error(`Neg Balance found !`);

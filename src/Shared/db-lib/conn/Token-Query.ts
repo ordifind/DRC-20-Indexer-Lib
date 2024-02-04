@@ -3,6 +3,7 @@ import {
   MongoDatabase,
 } from "../../indexer-helper/config";
 import { DeployedCache, DoginalsDeployment } from "../../indexer-helper/types";
+import { BigIntToString } from "../../utils/decimalsConvert";
 import GetConnection from "./connection";
 
 const TokenQuery = {
@@ -42,7 +43,7 @@ const TokenQuery = {
           filter: { tick: e.tick },
           update: {
             $set: {
-              MintedAmount: e.MintedAmount,
+              MintedAmount: BigIntToString(e.MintedAmount),
               ...(Number(e.supply) === Number(e.MintedAmount)
                 ? { isMinted: true, completedBlock: e.MintedBlock }
                 : {}),

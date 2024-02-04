@@ -41,9 +41,9 @@ export interface Doginals {
 
 export interface DoginalsDeployment {
   tick: string;
-  supply: bigint;
-  limit: bigint;
-  MintedAmount: bigint;
+  supply: string;
+  limit: string;
+  MintedAmount: string;
   deployer: string;
   txid: string;
   inscriptionID: string;
