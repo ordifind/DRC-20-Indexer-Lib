@@ -1,9 +1,4 @@
-import {
-  Add,
-  BigIntToString,
-  StringToBigint,
-  Sub,
-} from "../utils/decimalsConvert";
+import { AddDecimals, SubDecimals } from "../utils/decimalsConvert";
 import { Protocol_Symbol } from "./config";
 import {
   BalanceData,
@@ -122,44 +117,34 @@ export const CheckUpdateType = (
 export const UpdateBalanceValue = (
   IsUserExistinDB: BalanceDoginals | undefined,
   IsSameTickExistinDB: BalanceData | undefined,
-  amount: bigint,
+  amount: Decimal,
   sum: boolean,
   balanceType: "amount" | "transferable"
-): string => {
+): Decimal => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? BigIntToString(
-          Add(amount, StringToBigint(IsSameTickExistinDB[balanceType]))
-        )
-      : BigIntToString(StringToBigint(IsSameTickExistinDB[balanceType]));
+      ? AddDecimals(amount, IsSameTickExistinDB[balanceType])
+      : IsSameTickExistinDB[balanceType];
   } else {
-    return BigIntToString(amount);
+    return amount;
   }
 };
 
 export const ValidateMintPayloads = (
-  limit: bigint,
-  amt: bigint,
-  max: bigint,
-  minted: bigint
-): bigint | string => {
+  limit: Decimal,
+  amt: Decimal,
+  max: Decimal,
+  minted: Decimal
+): Decimal | string => {
   try {
-    const LimitDecimals = new Decimal(Number(limit));
-    const amtDecimals = new Decimal(Number(amt));
-    const maxDecimals = new Decimal(Number(max));
-    const MintedDecimals = new Decimal(Number(minted));
+    if (amt.gt(limit)) return "Amount is greater then Limit";
 
-    if (amtDecimals.gt(LimitDecimals)) return "Amount is greater then Limit";
+    if (max.lte(minted)) return "Token Minted Already";
 
-    if (maxDecimals.lte(MintedDecimals)) return "Token Minted Already";
-
-    const SupplyLeftToMint: bigint = Sub(BigInt(max), BigInt(minted));
+    const SupplyLeftToMint: Decimal = SubDecimals(max, minted);
     //1000 - 990
 
-    if (
-      new Decimal(Number(SupplyLeftToMint)).lt(LimitDecimals) &&
-      !new Decimal(Number(SupplyLeftToMint)).isZero()
-    ) {
+    if (SupplyLeftToMint.lt(limit) && SupplyLeftToMint.isZero()) {
       const IsAmountLast = SupplyLeftToMint;
       return IsAmountLast;
     } else if (!new Decimal(Number(SupplyLeftToMint)).isZero()) {

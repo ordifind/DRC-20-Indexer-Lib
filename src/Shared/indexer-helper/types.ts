@@ -1,5 +1,5 @@
 import { Protocol_Symbol } from "./config";
-
+import Decimal from "decimal.js";
 export enum ValidMethods {
   deploy = "deploy",
   mint = "mint",
@@ -41,9 +41,9 @@ export interface Doginals {
 
 export interface DoginalsDeployment {
   tick: string;
-  supply: string;
-  limit: string;
-  MintedAmount: string;
+  supply: Decimal;
+  limit: Decimal;
+  MintedAmount: Decimal;
   deployer: string;
   txid: string;
   inscriptionID: string;
@@ -55,17 +55,17 @@ export interface DoginalsDeployment {
 
 export interface DeployedCache {
   tick: string;
-  supply: bigint;
-  limit: bigint;
-  MintedAmount: bigint;
+  supply: Decimal;
+  limit: Decimal;
+  MintedAmount: Decimal;
   isMinted: boolean;
   MintedBlock: number;
 }
 
 export type BalanceData = {
   tick: string;
-  amount: string;
-  transferable: string;
+  amount: Decimal;
+  transferable: Decimal;
   updateTypes?: BalanceUpdateTypes;
 };
 
@@ -81,9 +81,9 @@ export interface InscribedData {
 
 export interface DoginalsLogs {
   tick: string;
-  amount?: bigint;
-  limit?: bigint;
-  max?: bigint;
+  amount?: Decimal;
+  limit?: Decimal;
+  max?: Decimal;
   block: number;
   inscripition_id: string;
   txid: string;
