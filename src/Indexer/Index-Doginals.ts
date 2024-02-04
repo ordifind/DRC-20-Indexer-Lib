@@ -65,9 +65,9 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         DeployedCache.push({
           tick: tick,
-          supply: NumberToDecimals(supply),
-          limit: NumberToDecimals(limit),
-          MintedAmount: NumberToDecimals(MintedAmount),
+          supply: supply,
+          limit: limit,
+          MintedAmount: MintedAmount,
           isMinted,
           MintedBlock: completedBlock,
         });
