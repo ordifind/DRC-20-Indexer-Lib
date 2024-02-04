@@ -197,7 +197,6 @@ const IndexDoginals = async (data: Doginals[]) => {
           });
           continue;
         }
-
         IsTokenDeployed.MintedAmount = Add(BigInt(MintedAmount), ValidateMint);
 
         IsTokenDeployed.MintedBlock = inscriptionData.block;
@@ -261,7 +260,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             if (e.tick !== DRCData.tick) return e;
             return {
               tick: e.tick,
-              amount: Add(e.amount, ValidateMint),
+              amount: Add(BigInt(e.amount), ValidateMint),
               transferable: UpdateBalanceValue(
                 IsUserInBalanceDataBase,
                 IsUserHoldingSameTokenInDataBase,
@@ -355,8 +354,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
 
-        const TransferAbleBalance = BalanceTree.transferable;
-        const AmountBalance = BalanceTree.amount;
+        const TransferAbleBalance = BigInt(BalanceTree.transferable);
+        const AmountBalance = BigInt(BalanceTree.amount);
 
         if (new Decimal(Number(AmountBalance)).isNeg()) {
           throw Error(`Neg Balance found !`);
