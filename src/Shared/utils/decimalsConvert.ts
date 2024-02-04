@@ -1,5 +1,5 @@
 export const DecimalsToNumber = (number: number): bigint => {
-  return ConvertToBigInt(number * 1e8);
+  return ConvertToBigInt(number * 1e18);
 };
 
 export const ConvertToBigInt = (number: number): bigint => {
