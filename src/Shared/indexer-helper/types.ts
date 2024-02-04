@@ -64,8 +64,8 @@ export interface DeployedCache {
 
 export type BalanceData = {
   tick: string;
-  amount: bigint;
-  transferable: bigint;
+  amount: string;
+  transferable: string;
   updateTypes?: BalanceUpdateTypes;
 };
 

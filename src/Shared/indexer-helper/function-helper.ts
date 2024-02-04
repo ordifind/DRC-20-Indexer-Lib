@@ -1,4 +1,9 @@
-import { Add, Sub } from "../utils/decimalsConvert";
+import {
+  Add,
+  BigIntToString,
+  StringToBigint,
+  Sub,
+} from "../utils/decimalsConvert";
 import { Protocol_Symbol } from "./config";
 import {
   BalanceData,
@@ -120,13 +125,15 @@ export const UpdateBalanceValue = (
   amount: bigint,
   sum: boolean,
   balanceType: "amount" | "transferable"
-): bigint => {
+): string => {
   if (IsUserExistinDB && IsSameTickExistinDB) {
     return sum
-      ? Add(amount, BigInt(IsSameTickExistinDB[balanceType]))
-      : BigInt(IsSameTickExistinDB[balanceType]);
+      ? BigIntToString(
+          Add(amount, StringToBigint(IsSameTickExistinDB[balanceType]))
+        )
+      : BigIntToString(StringToBigint(IsSameTickExistinDB[balanceType]));
   } else {
-    return amount;
+    return BigIntToString(amount);
   }
 };
 

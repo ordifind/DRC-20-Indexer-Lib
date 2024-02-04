@@ -17,7 +17,13 @@ import {
 } from "../Shared/indexer-helper/function-helper";
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import Decimal from "decimal.js";
-import { Add, DecimalsToNumber, Sub } from "../Shared/utils/decimalsConvert";
+import {
+  Add,
+  BigIntToString,
+  DecimalsToNumber,
+  StringToBigint,
+  Sub,
+} from "../Shared/utils/decimalsConvert";
 
 const IndexDoginals = async (data: Doginals[]) => {
   try {
@@ -280,8 +286,8 @@ const IndexDoginals = async (data: Doginals[]) => {
             holding: [
               {
                 tick: Doginals.DRCData.tick,
-                amount: ValidateMint,
-                transferable: BigInt(0),
+                amount: BigIntToString(ValidateMint),
+                transferable: BigIntToString(BigInt(0)),
                 updateTypes: CheckUpdateType(
                   IsUserInBalanceDataBase,
                   IsUserHoldingSameTokenInDataBase
@@ -407,8 +413,12 @@ const IndexDoginals = async (data: Doginals[]) => {
               ? e
               : {
                   tick: e.tick,
-                  amount: Sub(e.amount, UserTransferAmount),
-                  transferable: Add(e.transferable, UserTransferAmount),
+                  amount: BigIntToString(
+                    Sub(StringToBigint(e.amount), UserTransferAmount)
+                  ),
+                  transferable: BigIntToString(
+                    Add(StringToBigint(e.transferable), UserTransferAmount)
+                  ),
                   updateTypes: e.updateTypes,
                 };
           });
@@ -420,8 +430,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           if (IsAddressPresentInCache) {
             IsAddressPresentInCache.holding.push({
               tick: DRCData.tick,
-              amount: NewAmountBalance,
-              transferable: NewTransferableBalance,
+              amount: BigIntToString(NewAmountBalance),
+              transferable: BigIntToString(NewTransferableBalance),
             });
           } else {
             BalanceData.push({
@@ -429,8 +439,8 @@ const IndexDoginals = async (data: Doginals[]) => {
               holding: [
                 {
                   tick: DRCData.tick,
-                  amount: NewAmountBalance,
-                  transferable: NewTransferableBalance,
+                  amount: BigIntToString(NewAmountBalance),
+                  transferable: BigIntToString(NewTransferableBalance),
                 },
               ],
             });

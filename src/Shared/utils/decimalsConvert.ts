@@ -13,3 +13,10 @@ export const Add = (numA: bigint, numB: bigint): bigint => {
 export const Sub = (numA: bigint, numB: bigint): bigint => {
   return numA - numB;
 };
+export const BigIntToString = (num: bigint): string => {
+  return String(num);
+};
+
+export const StringToBigint = (num: string): bigint => {
+  return BigInt(num);
+};
