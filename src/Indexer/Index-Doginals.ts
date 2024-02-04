@@ -87,10 +87,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        console.log(inscriptionData);
-
-        const Supply = NumberToDecimals(DRCData.max || 0);
-        const Limit = NumberToDecimals(DRCData.lim || 0);
+        const Supply = NumberToDecimals(Number(DRCData.max) || 0);
+        const Limit = NumberToDecimals(Number(DRCData.lim) || 0);
 
         if (IsTokenExistInCache) {
           DoginalsLogs.push({
@@ -305,7 +303,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const UserTransferAmount = NumberToDecimals(DRCData.amt || 0);
+        const UserTransferAmount = NumberToDecimals(Number(DRCData.amt) || 0);
 
         if (!IsTokenExistInCache) {
           DoginalsLogs.push({
