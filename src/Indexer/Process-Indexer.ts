@@ -74,7 +74,10 @@ const StartIndexer = async () => {
       return;
     }
 
-    const FormatedInscriptionData = await InscriptionsWorker(BlockData);
+    const FormatedInscriptionData = await InscriptionsWorker(
+      BlockData,
+      BlocksToIndex
+    );
 
     Logger.Success(`Pharsing Blocks Inscription data before Indexing....`);
 

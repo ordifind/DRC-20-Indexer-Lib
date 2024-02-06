@@ -3,8 +3,12 @@ import {
   ValidatePayloads,
 } from "../Shared/indexer-helper/function-helper";
 import { DOGEDRC, Doginals } from "../Shared/indexer-helper/types";
+import InscriptionTransferWorker from "./Inscription-Transfer-worker";
 
-const InscriptionsWorker = async (data: any[]): Promise<Doginals[]> => {
+const InscriptionsWorker = async (
+  data: any[],
+  BlocksToIndex: number[]
+): Promise<Doginals[]> => {
   const ValidDoginals: Doginals[] = [];
 
   for (const Inscription of data) {
@@ -33,6 +37,12 @@ const InscriptionsWorker = async (data: any[]): Promise<Doginals[]> => {
       DRCData: DecodedInscriptionData,
     });
   }
+
+  // const TransferDoginals = await InscriptionTransferWorker(
+  //   ValidDoginals,
+  //   BlocksToIndex
+  // );
+
   return ValidDoginals;
 };
 export default InscriptionsWorker;

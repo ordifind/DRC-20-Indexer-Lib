@@ -13,6 +13,7 @@ async function GetConnection(): Promise<MongoClient | undefined> {
 
     const connection = await Client.connect();
     PreClient = connection;
+
     return connection;
   } catch (error) {
     if (typeof error === "string") throw new Error(error);

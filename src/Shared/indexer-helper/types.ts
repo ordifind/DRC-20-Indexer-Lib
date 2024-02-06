@@ -77,6 +77,8 @@ export interface BalanceDoginals {
 export interface InscribedData {
   address: string;
   inscribed_id: string;
+  hash: string;
+  index: number;
 }
 
 export interface DoginalsLogs {

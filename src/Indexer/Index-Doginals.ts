@@ -394,6 +394,8 @@ const IndexDoginals = async (data: Doginals[]) => {
         await BalanceQuery.WriteInscribedTransfer({
           inscribed_id: inscriptionData.inscriptionId,
           address: inscriptionData.sender,
+          hash: inscriptionData.hash,
+          index: 0,
         });
 
         DoginalsLogs.push({
