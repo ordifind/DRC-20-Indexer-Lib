@@ -17,12 +17,7 @@ interface TransactionsInput {
 
 const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
 
-<<<<<<< HEAD
-
-const MAX_ARRAYCACHE = 80_000
-=======
 const MAX_ARRAYCACHE = 80_000;
->>>>>>> refs/remotes/origin/main
 
 const InscriptionTransferWorker = async (
   SameBlockDoginalsData: Doginals[],
@@ -55,19 +50,6 @@ const InscriptionTransferWorker = async (
 
     const InputHash: string[][] = [[]];
     BlockTransaction?.map((e) => {
-<<<<<<< HEAD
-      e.Inputs.map((a: TransactionsInput) => {        
-      const IndexedUsed = a.hash.split(":");
-      if (Number(IndexedUsed[1]) !== 0) return;
-       
-       if(InputHash[InputHash.length-1].length <= MAX_ARRAYCACHE){
-      
-        InputHash[InputHash.length-1].push(IndexedUsed[0]);
-        }else{
-          InputHash.push([IndexedUsed[0]])
-        }
-
-=======
       e.Inputs.map((a: TransactionsInput) => {
         const IndexedUsed = a.hash.split(":");
         if (Number(IndexedUsed[1]) !== 0) return;
@@ -77,7 +59,6 @@ const InscriptionTransferWorker = async (
         } else {
           InputHash.push([IndexedUsed[0]]);
         }
->>>>>>> refs/remotes/origin/main
       });
     });
 
@@ -85,10 +66,6 @@ const InscriptionTransferWorker = async (
 
     //Now lets Find the Transfer Inscription contains input hash
 
-<<<<<<< HEAD
-    const ValidTransfers_ = await BalanceQuery.GetMatchInputs(InputHash[0]);
-
-=======
     const ValidTransfers_ = await Promise.all(
       InputHash.map(async (e) => {
         const ValidTransfers_ = (await BalanceQuery.GetMatchInputs(e)) || [];
@@ -103,14 +80,18 @@ const InscriptionTransferWorker = async (
       })
     );
 
+<<<<<<< Updated upstream
     const FlatedTransfers: InscribedData[] = ValidTransfers_.flat(1);
+=======
+    const FlatedTransfers = ValidTransfers_.flat(1);
+
+>>>>>>> Stashed changes
 
     if (
       ValidTransfers_.filter((a) => a !== undefined).length !== InputHash.length
     ) {
       throw new Error("Faild check all input hashes");
     }
->>>>>>> refs/remotes/origin/main
 
     if (!ValidTransfers_ && !DummyInscribedData.length) return DoginalsTransfer;
 
