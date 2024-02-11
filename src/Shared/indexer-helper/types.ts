@@ -31,6 +31,7 @@ interface InscriptionMeta {
   receiver?: string;
   time: number;
   block: number;
+  index: number;
   inscriptionId: string;
 }
 
@@ -94,4 +95,25 @@ export interface DoginalsLogs {
   isValid: boolean;
   reasonIgnore?: string;
   event: "deploy" | "mint" | "inscribe-transfer" | "transfer";
+}
+
+export interface DoginalsInputTransaction {
+  block: number;
+  txId: string;
+  InscriptionPresentIndex: number;
+  Inputs: { hash: string; index: string }[];
+  outputs: {
+    transactionHash: string;
+    index: string;
+    address: string;
+    value: number;
+  }[];
+  InscriptionUTXOs: {
+    hash: string;
+    index: number;
+    address: string;
+    inscribed_id: string;
+  };
+  index: number;
+  time: number;
 }

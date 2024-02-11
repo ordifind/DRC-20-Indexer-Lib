@@ -12,7 +12,8 @@ const InscriptionsWorker = async (
   const ValidDoginals: Doginals[] = [];
 
   for (const Inscription of data) {
-    const { inscriptionId, time, txid, block, content, Outputs } = Inscription;
+    const { inscriptionId, time, txid, block, content, Outputs, index } =
+      Inscription;
 
     const DecodedInscriptionData: DOGEDRC | undefined = DecodeJSON(content);
 
@@ -30,6 +31,7 @@ const InscriptionsWorker = async (
       inscriptionData: {
         inscriptionId: inscriptionId,
         sender: Address,
+        index: index,
         block: block,
         time: time,
         hash: txid,
@@ -38,11 +40,23 @@ const InscriptionsWorker = async (
     });
   }
 
-  // const TransferDoginals = await InscriptionTransferWorker(
-  //   ValidDoginals,
-  //   BlocksToIndex
-  // );
+  const TransferDoginals = await InscriptionTransferWorker(
+    ValidDoginals,
+    BlocksToIndex
+  );
 
-  return ValidDoginals;
+  const DoginalsIncludesTransfer = TransferDoginals.concat(ValidDoginals);
+
+  //Now lets sort them based in Index and Block
+
+  const DoginalsDataSorted = DoginalsIncludesTransfer.sort((a, b) => {
+    if (a.inscriptionData.block !== b.inscriptionData.block) {
+      return a.inscriptionData.block - b.inscriptionData.block;
+    } else {
+      return a.inscriptionData.index - b.inscriptionData.index;
+    }
+  });
+
+  return DoginalsDataSorted;
 };
 export default InscriptionsWorker;

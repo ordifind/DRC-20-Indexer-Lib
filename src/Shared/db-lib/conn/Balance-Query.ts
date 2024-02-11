@@ -1,3 +1,4 @@
+import { WithId } from "mongodb";
 import {
   MongoCollectionBalance,
   MongoCollectionInscribed,
@@ -36,6 +37,26 @@ const BalanceQuery = {
       throw error;
     }
   },
+  LoadInscribeId: async (id: string) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabase);
+      const collection = db?.collection(MongoCollectionInscribed || "");
+      return collection?.findOne({ inscribed_id: id }) ? true : false;
+    } catch (error) {
+      throw error;
+    }
+  },
+  DeleteInscribedId: async (id: string) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabase);
+      const collection = db?.collection(MongoCollectionInscribed || "");
+      await collection?.deleteOne({ inscribed_id: id });
+    } catch (error) {
+      throw error;
+    }
+  },
   LoadUpBalance: async (address: string[]) => {
     try {
       const connectionProvider = await GetConnection();
@@ -56,6 +77,18 @@ const BalanceQuery = {
       const db = connectionProvider?.db(MongoDatabase);
       const collection = db?.collection(MongoEventLogs);
       await collection?.insertMany(eventData);
+    } catch (error) {
+      throw error;
+    }
+  },
+  GetMatchInputs: async (hash: string[]) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabase);
+      const collection = db?.collection(MongoCollectionInscribed || "");
+      const Datas = await collection?.find({ hash: { $in: hash } }).toArray();
+
+      return Datas;
     } catch (error) {
       throw error;
     }

@@ -1,6 +1,7 @@
 import {
   BalanceData,
   BalanceDoginals,
+  BalanceUpdateTypes,
   DeployedCache,
   Doginals,
   DoginalsDeployment,
@@ -437,6 +438,7 @@ const IndexDoginals = async (data: Doginals[]) => {
               tick: DRCData.tick,
               amount: DecimalToString(NewAmountBalance),
               transferable: DecimalToString(NewTransferableBalance),
+              updateTypes: BalanceUpdateTypes.UPDATE_TOKEN_VALUE,
             });
           } else {
             BalanceData.push({
@@ -446,11 +448,261 @@ const IndexDoginals = async (data: Doginals[]) => {
                   tick: DRCData.tick,
                   amount: DecimalToString(NewAmountBalance),
                   transferable: DecimalToString(NewTransferableBalance),
+                  updateTypes: BalanceUpdateTypes.UPDATE_TOKEN_VALUE,
                 },
               ],
             });
           }
         }
+      } else if (DRCData.op === ValidMethods.transfer) {
+        if (!DRCData.amt) continue;
+
+        const IsTokenExistInCache = DeployedCache.find(
+          (a) => a.tick === DRCData.tick
+        );
+
+        const UserTransferAmount = NumberToDecimals(Number(DRCData.amt) || 0);
+
+        //Now lets Check if the inscription is inscriped or not
+
+        const IsInscriptionInscribe = await BalanceQuery.LoadInscribeId(
+          inscriptionData.inscriptionId
+        );
+
+        if (!IsInscriptionInscribe) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: DecimalToString(UserTransferAmount),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            sender: inscriptionData.sender,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Inscription is not transferable",
+            event: "transfer",
+          });
+          continue;
+        }
+
+        if (!IsTokenExistInCache) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: DecimalToString(UserTransferAmount),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            sender: inscriptionData.sender,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "Token Not Deployed",
+            event: "transfer",
+          });
+          continue;
+        }
+
+        let Sender: BalanceData | undefined;
+
+        const IsSenderBalanceinCache = BalanceData.find(
+          (a) =>
+            a.address === inscriptionData.sender &&
+            a.holding.find((b) => b.tick === DRCData.tick)
+        );
+
+        const isSenderBalanceinDB = BalanceDataBase.find(
+          (a) =>
+            a.address === inscriptionData.sender &&
+            a.holding.find((b) => b.tick === DRCData.tick)
+        );
+
+        if (IsSenderBalanceinCache) {
+          const UserBalanceSeperated = IsSenderBalanceinCache.holding.find(
+            (a) => a.tick === DRCData.tick
+          );
+          Sender = UserBalanceSeperated;
+        } else {
+          Sender = isSenderBalanceinDB?.holding.find(
+            (a) => a.tick === DRCData.tick
+          );
+        }
+
+        if (!Sender) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: DecimalToString(UserTransferAmount),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            sender: inscriptionData.sender,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "User or Token did not exist",
+            event: "transfer",
+          });
+          continue;
+        }
+
+        const SenderBalanceAmount = StringToDecimals(Sender.amount);
+        const SenderBalanceTransferable = StringToDecimals(Sender.transferable);
+
+        if (SenderBalanceTransferable.lt(UserTransferAmount)) {
+          DoginalsLogs.push({
+            tick: DRCData.tick,
+            amount: DecimalToString(UserTransferAmount),
+            inscripition_id: inscriptionData.inscriptionId,
+            txid: inscriptionData.hash,
+            block: inscriptionData.block,
+            sender: inscriptionData.sender,
+            receiver: inscriptionData.receiver || "",
+            isValid: false,
+            reasonIgnore: "User Transferable Balance is Less then Amount",
+            event: "transfer",
+          });
+        }
+
+        const NewSenderTransferableBalance = SubDecimals(
+          SenderBalanceTransferable,
+          UserTransferAmount
+        );
+
+        if (IsSenderBalanceinCache) {
+          IsSenderBalanceinCache.holding = IsSenderBalanceinCache.holding.map(
+            (e) => {
+              return e.tick !== DRCData.tick
+                ? e
+                : {
+                    tick: e.tick,
+                    amount: e.amount,
+
+                    transferable: DecimalToString(
+                      SubDecimals(
+                        StringToDecimals(e.transferable),
+                        UserTransferAmount
+                      )
+                    ),
+                    updateTypes: e.updateTypes,
+                  };
+            }
+          );
+        } else if (isSenderBalanceinDB) {
+          const IsAddressPresentInCache = BalanceData.find(
+            (a) => a.address === inscriptionData.sender
+          );
+
+          if (IsAddressPresentInCache) {
+            IsAddressPresentInCache.holding.push({
+              tick: DRCData.tick,
+              amount: DecimalToString(SenderBalanceAmount),
+              transferable: DecimalToString(NewSenderTransferableBalance),
+              updateTypes: BalanceUpdateTypes.UPDATE_TOKEN_VALUE,
+            });
+          } else {
+            BalanceData.push({
+              address: inscriptionData.sender,
+              holding: [
+                {
+                  tick: DRCData.tick,
+                  amount: DecimalToString(SenderBalanceAmount),
+                  transferable: DecimalToString(NewSenderTransferableBalance),
+                  updateTypes: BalanceUpdateTypes.UPDATE_TOKEN_VALUE,
+                },
+              ],
+            });
+          }
+        }
+
+        const IsReceiverAddressInCache = BalanceData.find(
+          (a) => a.address === inscriptionData.receiver
+        );
+
+        const IsReceiverBalanceinCache =
+          IsReceiverAddressInCache?.holding?.find(
+            (a) => a.tick === DRCData.tick
+          );
+
+        const isReceiverAddressinDB = BalanceDataBase.find(
+          (a) => a.address === inscriptionData.receiver
+        );
+
+        const isReceiverBalanceinDB = isReceiverAddressinDB?.holding?.find(
+          (a) => a.tick === DRCData.tick
+        );
+
+        if (IsReceiverAddressInCache && !IsReceiverBalanceinCache) {
+          IsReceiverAddressInCache.holding.push({
+            tick: Doginals.DRCData.tick,
+            amount: UpdateBalanceValue(
+              isReceiverAddressinDB,
+              isReceiverBalanceinDB,
+              UserTransferAmount,
+              true,
+              "amount"
+            ),
+            transferable: UpdateBalanceValue(
+              isReceiverAddressinDB,
+              isReceiverBalanceinDB,
+              NumberToDecimals(0),
+              false,
+              "transferable"
+            ),
+            updateTypes: CheckUpdateType(
+              isReceiverAddressinDB,
+              isReceiverBalanceinDB
+            ),
+          });
+        } else if (IsReceiverAddressInCache && IsReceiverBalanceinCache) {
+          IsReceiverAddressInCache?.holding.map((e) => {
+            if (e.tick !== DRCData.tick) return e;
+            return {
+              tick: e.tick,
+              amount: AddDecimals(
+                StringToDecimals(e.amount),
+                UserTransferAmount
+              ),
+              transferable: UpdateBalanceValue(
+                isReceiverAddressinDB,
+                isReceiverBalanceinDB,
+                NumberToDecimals(0),
+                false,
+                "transferable"
+              ),
+              updateTypes: CheckUpdateType(
+                isReceiverAddressinDB,
+                isReceiverBalanceinDB
+              ),
+            };
+          });
+        } else {
+          const receiver = inscriptionData.receiver || "";
+          BalanceData.push({
+            address: receiver,
+            holding: [
+              {
+                tick: Doginals.DRCData.tick,
+                amount: DecimalToString(UserTransferAmount),
+                transferable: "0",
+                updateTypes: CheckUpdateType(
+                  isReceiverAddressinDB,
+                  isReceiverBalanceinDB
+                ),
+              },
+            ],
+          });
+        }
+
+        await BalanceQuery.DeleteInscribedId(inscriptionData.inscriptionId);
+
+        DoginalsLogs.push({
+          tick: DRCData.tick,
+          amount: DecimalToString(UserTransferAmount),
+          inscripition_id: inscriptionData.inscriptionId,
+          txid: inscriptionData.hash,
+          block: inscriptionData.block,
+          sender: inscriptionData.sender,
+          receiver: inscriptionData.receiver || "",
+          isValid: true,
+          event: "transfer",
+        });
       }
     }
 
