@@ -86,7 +86,7 @@ const InscriptionTransferWorker = async (
           (a) => a.hash.toLowerCase() === InputHash.toLowerCase()
         );
 
-        if (!IsDoginalsTransfer) continue;
+        if (!IsDoginalsTransfer || IsDoginalsTransfer.index !== 0) continue;
 
         DoginalsTransactions.push({
           txId: Transactions.txId,
