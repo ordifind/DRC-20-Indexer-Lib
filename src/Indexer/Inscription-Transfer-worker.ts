@@ -1,3 +1,4 @@
+//@ts-ignore
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
 import { DecodeJSON } from "../Shared/indexer-helper/function-helper";
@@ -15,6 +16,8 @@ interface TransactionsInput {
 }
 
 const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
+
+const MAX_ARRAYCACHE = 80_000;
 
 const InscriptionTransferWorker = async (
   SameBlockDoginalsData: Doginals[],
@@ -45,32 +48,49 @@ const InscriptionTransferWorker = async (
 
     //Now lets gather all the Input TX used in these Transactions
 
-    const InputHash: string[] = [];
+    const InputHash: string[][] = [[]];
     BlockTransaction?.map((e) => {
       e.Inputs.map((a: TransactionsInput) => {
         const IndexedUsed = a.hash.split(":");
         if (Number(IndexedUsed[1]) !== 0) return;
-        InputHash.push(IndexedUsed[0]);
+
+        if (InputHash[InputHash.length - 1].length <= MAX_ARRAYCACHE) {
+          InputHash[InputHash.length - 1].push(IndexedUsed[0]);
+        } else {
+          InputHash.push([IndexedUsed[0]]);
+        }
       });
     });
 
     //Now lets Find the Transfer Inscription contains input hash
 
-    const ValidTransfers_ = await BalanceQuery.GetMatchInputs(InputHash);
+    const ValidTransfers_ = await Promise.all(
+      InputHash.map(async (e) => {
+        const ValidTransfers_ = await BalanceQuery.GetMatchInputs(e);
+        return ValidTransfers_?.map((e): InscribedData => {
+          return {
+            inscribed_id: e.inscribed_id,
+            address: e.address,
+            index: e.index,
+            hash: e.hash,
+          };
+        });
+      })
+    );
+
+    const FlatedTransfers = ValidTransfers_.flat(1);
+
+    console.log(FlatedTransfers);
+
+    if (
+      ValidTransfers_.filter((a) => a !== undefined).length !== InputHash.length
+    ) {
+      throw new Error("Faild check all input hashes");
+    }
 
     if (!ValidTransfers_ && !DummyInscribedData.length) return DoginalsTransfer;
-
-    const InscribedDataFromDB =
-      ValidTransfers_?.map((e): InscribedData => {
-        return {
-          inscribed_id: e.inscribed_id,
-          address: e.address,
-          index: e.index,
-          hash: e.hash,
-        };
-      }) || [];
-
-    const ValidTransfers = DummyInscribedData.concat(InscribedDataFromDB);
+    //@ts-ignore
+    const ValidTransfers = DummyInscribedData.concat(FlatedTransfers);
 
     const InputTransactions: string[] = [];
 
