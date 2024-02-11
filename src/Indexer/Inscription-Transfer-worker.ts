@@ -86,7 +86,7 @@ const InscriptionTransferWorker = async (
           (a) => a.hash.toLowerCase() === InputHash.toLowerCase()
         );
 
-        if (Number(InputHash.hash.split(":")[1] !== IsDoginalsTransfer?.index))
+        if (Number(Inputs.hash.split(":")[1] !== IsDoginalsTransfer?.index))
           continue;
 
         if (!IsDoginalsTransfer) continue;
