@@ -48,9 +48,9 @@ const InscriptionTransferWorker = async (
     const InputHash: string[] = [];
     BlockTransaction?.map((e) => {
       e.Inputs.map((a: TransactionsInput) => {
-        const IndexedUsed = a.hash.split(":")[1];
-        if (Number(IndexedUsed) !== 0) return;
-        InputHash.push(a.hash.replaceAll(":0", ""));
+        const IndexedUsed = a.hash.split(":");
+        if (Number(IndexedUsed[1]) !== 0) return;
+        InputHash.push(IndexedUsed[0]);
       });
     });
 
@@ -86,7 +86,10 @@ const InscriptionTransferWorker = async (
           (a) => a.hash.toLowerCase() === InputHash.toLowerCase()
         );
 
-        if (!IsDoginalsTransfer || IsDoginalsTransfer.index !== 0) continue;
+        if (Number(InputHash.hash.split(":")[1] !== IsDoginalsTransfer?.index))
+          continue;
+
+        if (!IsDoginalsTransfer) continue;
 
         DoginalsTransactions.push({
           txId: Transactions.txId,
