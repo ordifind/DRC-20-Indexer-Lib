@@ -37,6 +37,37 @@ const DataQuery = {
       throw error;
     }
   },
+
+  GetTransactionPerHash: async (hash: string[]) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabaseMain);
+      const collection = db?.collection(MongoTransactions);
+
+      const Query = { txId: { $in: hash } };
+
+      const data = await collection?.find(Query).toArray();
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  LoadMatchedInscriptions: async (ids: string[]) => {
+    try {
+      const connectionProvider = await GetConnection();
+      const db = connectionProvider?.db(MongoDatabaseMain);
+      const collection = db?.collection(MongoInscriptions);
+
+      const Query = { inscriptionId: { $in: ids } };
+
+      const data = await collection?.find(Query).toArray();
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default DataQuery;
