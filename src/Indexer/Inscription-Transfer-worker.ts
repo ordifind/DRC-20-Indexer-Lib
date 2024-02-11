@@ -66,7 +66,7 @@ const InscriptionTransferWorker = async (
 
     const ValidTransfers_ = await Promise.all(
       InputHash.map(async (e) => {
-        const ValidTransfers_ = await BalanceQuery.GetMatchInputs(e);
+        const ValidTransfers_ = (await BalanceQuery.GetMatchInputs(e)) || [];
         return ValidTransfers_?.map((e): InscribedData => {
           return {
             inscribed_id: e.inscribed_id,
@@ -78,9 +78,7 @@ const InscriptionTransferWorker = async (
       })
     );
 
-    const FlatedTransfers = ValidTransfers_.flat(1);
-
-    console.log(FlatedTransfers);
+    const FlatedTransfers: InscribedData[] = ValidTransfers_.flat(1);
 
     if (
       ValidTransfers_.filter((a) => a !== undefined).length !== InputHash.length
@@ -89,7 +87,7 @@ const InscriptionTransferWorker = async (
     }
 
     if (!ValidTransfers_ && !DummyInscribedData.length) return DoginalsTransfer;
-    //@ts-ignore
+
     const ValidTransfers = DummyInscribedData.concat(FlatedTransfers);
 
     const InputTransactions: string[] = [];
