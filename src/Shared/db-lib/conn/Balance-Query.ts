@@ -86,9 +86,7 @@ const BalanceQuery = {
       const connectionProvider = await GetConnection();
       const db = connectionProvider?.db(MongoDatabase);
       const collection = db?.collection(MongoCollectionInscribed || "");
-      const Datas = await collection
-        ?.find({ hash: { $in: hash }, index: 0 })
-        .toArray();
+      const Datas = await collection?.find({ hash: { $in: hash } }).toArray();
 
       return Datas;
     } catch (error) {
