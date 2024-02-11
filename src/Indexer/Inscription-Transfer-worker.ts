@@ -80,14 +80,15 @@ const InscriptionTransferWorker = async (
 
     for (const Transactions of BlockTransaction) {
       for (const [i, Inputs] of Transactions.Inputs.entries()) {
-        const InputHash = Inputs.hash.split(":")[0];
+        const InputWithIndex = Inputs.hash.split(":");
+
+        const InputIndex = InputWithIndex[1];
 
         const IsDoginalsTransfer = ValidTransfers.find(
-          (a) => a.hash.toLowerCase() === InputHash.toLowerCase()
+          (a) =>
+            a.hash.toLowerCase() === InputWithIndex[0].toLowerCase() &&
+            Number(InputIndex) === a.index
         );
-
-        if (Number(Inputs.hash.split(":")[1] !== IsDoginalsTransfer?.index))
-          continue;
 
         if (!IsDoginalsTransfer) continue;
 
@@ -110,7 +111,7 @@ const InscriptionTransferWorker = async (
         Inscriptions.push(IsDoginalsTransfer.inscribed_id);
 
         const IsTransactionReadyToCheck = InputTransactions.find(
-          (a) => a === InputHash
+          (a) => a === InputWithIndex[0]
         );
 
         if (IsTransactionReadyToCheck) continue;
