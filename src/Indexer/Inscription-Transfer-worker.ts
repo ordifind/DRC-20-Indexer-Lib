@@ -1,3 +1,4 @@
+//@ts-ignore
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
 import { DecodeJSON } from "../Shared/indexer-helper/function-helper";
@@ -15,6 +16,9 @@ interface TransactionsInput {
 }
 
 const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
+
+
+const MAX_ARRAYCACHE = 80_000
 
 const InscriptionTransferWorker = async (
   SameBlockDoginalsData: Doginals[],
@@ -45,18 +49,28 @@ const InscriptionTransferWorker = async (
 
     //Now lets gather all the Input TX used in these Transactions
 
-    const InputHash: string[] = [];
+    const InputHash: string[][] = [[]];
     BlockTransaction?.map((e) => {
-      e.Inputs.map((a: TransactionsInput) => {
-        const IndexedUsed = a.hash.split(":");
-        if (Number(IndexedUsed[1]) !== 0) return;
-        InputHash.push(IndexedUsed[0]);
+      e.Inputs.map((a: TransactionsInput) => {        
+      const IndexedUsed = a.hash.split(":");
+      if (Number(IndexedUsed[1]) !== 0) return;
+       
+       if(InputHash[InputHash.length-1].length <= MAX_ARRAYCACHE){
+      
+        InputHash[InputHash.length-1].push(IndexedUsed[0]);
+        }else{
+          InputHash.push([IndexedUsed[0]])
+        }
+
       });
     });
 
+   
+
     //Now lets Find the Transfer Inscription contains input hash
 
-    const ValidTransfers_ = await BalanceQuery.GetMatchInputs(InputHash);
+    const ValidTransfers_ = await BalanceQuery.GetMatchInputs(InputHash[0]);
+
 
     if (!ValidTransfers_ && !DummyInscribedData.length) return DoginalsTransfer;
 
@@ -126,6 +140,8 @@ const InscriptionTransferWorker = async (
 
     //Now lets get All the Transaction Info for those hash
     const UniqueTransactionsInputs: string[] = [...new Set(InputTransactions)];
+
+
 
     const LoadTransactionForInputs = await DataQuery.GetTransactionPerHash(
       UniqueTransactionsInputs
