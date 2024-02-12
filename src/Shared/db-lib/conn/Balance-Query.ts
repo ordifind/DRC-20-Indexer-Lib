@@ -42,7 +42,8 @@ const BalanceQuery = {
       const connectionProvider = await GetConnection();
       const db = connectionProvider?.db(MongoDatabase);
       const collection = db?.collection(MongoCollectionInscribed || "");
-      return collection?.findOne({ inscribed_id: id }) ? true : false;
+
+      return (await collection?.findOne({ inscribed_id: id })) ? true : false;
     } catch (error) {
       throw error;
     }

@@ -263,24 +263,29 @@ const IndexDoginals = async (data: Doginals[]) => {
             ),
           });
         } else if (IsUserInBalanceToStore && IsUserHoldingSameTokenInStore) {
-          IsUserInBalanceToStore.holding.map((e) => {
-            if (e.tick !== DRCData.tick) return e;
-            return {
-              tick: e.tick,
-              amount: AddDecimals(StringToDecimals(e.amount), ValidateMint),
-              transferable: UpdateBalanceValue(
-                IsUserInBalanceDataBase,
-                IsUserHoldingSameTokenInDataBase,
-                NumberToDecimals(0),
-                false,
-                "transferable"
-              ),
-              updateTypes: CheckUpdateType(
-                IsUserInBalanceDataBase,
-                IsUserHoldingSameTokenInDataBase
-              ),
-            };
-          });
+          IsUserInBalanceToStore.holding = IsUserInBalanceToStore.holding.map(
+            (e) => {
+              if (e.tick !== DRCData.tick) return e;
+
+              return {
+                tick: e.tick,
+                amount: DecimalToString(
+                  AddDecimals(StringToDecimals(e.amount), ValidateMint)
+                ),
+                transferable: UpdateBalanceValue(
+                  IsUserInBalanceDataBase,
+                  IsUserHoldingSameTokenInDataBase,
+                  NumberToDecimals(0),
+                  false,
+                  "transferable"
+                ),
+                updateTypes: CheckUpdateType(
+                  IsUserInBalanceDataBase,
+                  IsUserHoldingSameTokenInDataBase
+                ),
+              };
+            }
+          );
         } else {
           BalanceData.push({
             address: Sender,
@@ -303,7 +308,6 @@ const IndexDoginals = async (data: Doginals[]) => {
         const IsTokenExistInCache = DeployedCache.find(
           (a) => a.tick === DRCData.tick
         );
-
         const UserTransferAmount = NumberToDecimals(Number(DRCData.amt) || 0);
 
         if (!IsTokenExistInCache) {
@@ -468,7 +472,6 @@ const IndexDoginals = async (data: Doginals[]) => {
         const IsInscriptionInscribe = await BalanceQuery.LoadInscribeId(
           inscriptionData.inscriptionId
         );
-
         if (!IsInscriptionInscribe) {
           DoginalsLogs.push({
             tick: DRCData.tick,
@@ -558,6 +561,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             reasonIgnore: "User Transferable Balance is Less then Amount",
             event: "transfer",
           });
+          continue;
         }
 
         const NewSenderTransferableBalance = SubDecimals(
@@ -651,27 +655,27 @@ const IndexDoginals = async (data: Doginals[]) => {
             ),
           });
         } else if (IsReceiverAddressInCache && IsReceiverBalanceinCache) {
-          IsReceiverAddressInCache?.holding.map((e) => {
-            if (e.tick !== DRCData.tick) return e;
-            return {
-              tick: e.tick,
-              amount: AddDecimals(
-                StringToDecimals(e.amount),
-                UserTransferAmount
-              ),
-              transferable: UpdateBalanceValue(
-                isReceiverAddressinDB,
-                isReceiverBalanceinDB,
-                NumberToDecimals(0),
-                false,
-                "transferable"
-              ),
-              updateTypes: CheckUpdateType(
-                isReceiverAddressinDB,
-                isReceiverBalanceinDB
-              ),
-            };
-          });
+          IsReceiverAddressInCache.holding =
+            IsReceiverAddressInCache?.holding.map((e) => {
+              if (e.tick !== DRCData.tick) return e;
+              return {
+                tick: e.tick,
+                amount: DecimalToString(
+                  AddDecimals(StringToDecimals(e.amount), UserTransferAmount)
+                ),
+                transferable: UpdateBalanceValue(
+                  isReceiverAddressinDB,
+                  isReceiverBalanceinDB,
+                  NumberToDecimals(0),
+                  false,
+                  "transferable"
+                ),
+                updateTypes: CheckUpdateType(
+                  isReceiverAddressinDB,
+                  isReceiverBalanceinDB
+                ),
+              };
+            });
         } else {
           const receiver = inscriptionData.receiver || "";
           BalanceData.push({
