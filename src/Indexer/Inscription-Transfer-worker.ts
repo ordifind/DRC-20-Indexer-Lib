@@ -1,4 +1,3 @@
-//@ts-ignore
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
 import { DecodeJSON } from "../Shared/indexer-helper/function-helper";
@@ -224,8 +223,7 @@ const InscriptionTransferWorker = async (
 
       for (const [i, Outputs] of DoginalsTransactionData.outputs.entries()) {
         const OutputValue = Outputs.value;
-
-        if (OutputValue + CurrentOutputSum >= SumInputValues) {
+        if (OutputValue + CurrentOutputSum > SumInputValues) {
           newInscriptionIndex = i;
           break;
         }
@@ -250,7 +248,7 @@ const InscriptionTransferWorker = async (
       if (!DecodedContent)
         throw new Error("Decoded Inscribe-Transfer Json problem exist !!!");
 
-      if (newInscriptionIndex) {
+      if (newInscriptionIndex !== undefined) {
         const NewOutput = DoginalsTransactionData.outputs[newInscriptionIndex];
 
         DoginalsTransfer.push({
