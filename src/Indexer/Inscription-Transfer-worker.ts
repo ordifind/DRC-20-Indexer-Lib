@@ -127,12 +127,6 @@ const InscriptionTransferWorker = async (
 
         Inscriptions.push(IsDoginalsTransfer.inscribed_id);
 
-        const IsTransactionReadyToCheck = InputTransactions.find(
-          (a) => a === InputWithIndex[0]
-        );
-
-        if (IsTransactionReadyToCheck) continue;
-
         const InputsHash = Transactions.Inputs.map(
           (e: any) => e.hash.split(":")[0]
         );
