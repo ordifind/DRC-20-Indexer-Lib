@@ -1,5 +1,7 @@
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
+import Provider from "../Shared/dogecoin-core";
+import { HOST, PASS, PORT, USER } from "../Shared/indexer-helper/config";
 import { DecodeJSON } from "../Shared/indexer-helper/function-helper";
 import {
   DOGEDRC,
@@ -17,6 +19,13 @@ interface TransactionsInput {
 const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
 
 const MAX_ARRAYCACHE = 80_000;
+
+const DogecoinClient = new Provider({
+  user: USER,
+  pass: PASS,
+  host: HOST,
+  port: PORT,
+});
 
 const InscriptionTransferWorker = async (
   SameBlockDoginalsData: Doginals[],
@@ -161,7 +170,11 @@ const InscriptionTransferWorker = async (
           (a) => a.txId === hash
         );
 
-        if (!IsTransactionFound) throw new Error("Faild to get Transaction");
+        if (!IsTransactionFound) {
+          const TransactionFromNode = await DogecoinClient.GetTransaction(hash);
+          console.log(TransactionFromNode);
+          throw new Error("Faild to get Transaction");
+        }
 
         const InputDatasValues = IsTransactionFound.outputs.find(
           (a: { hash: string; value: number }) => {

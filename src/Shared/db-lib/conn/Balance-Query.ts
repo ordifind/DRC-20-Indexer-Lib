@@ -1,4 +1,3 @@
-import { WithId } from "mongodb";
 import {
   MongoCollectionBalance,
   MongoCollectionInscribed,

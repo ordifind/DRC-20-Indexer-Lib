@@ -34,3 +34,8 @@ export const MongoEventLogs = Process.MongoEventLogs || "";
 
 export const MongoCollectionIndexerStatus =
   Process.MongoCollectionIndexerStatus;
+
+export const PORT = Number(Process.PORT) || 22555;
+export const HOST = Process.HOST || "0.0.0.0";
+export const PASS = Process.PASS || "";
+export const USER = Process.USER || "";
