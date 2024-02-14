@@ -28,7 +28,7 @@ class ConnectionProvider {
       password: this.pass,
     };
     const Client = new Bitcore(Config);
-    return await Client.connect();
+    return await Client;
   }
 
   async Connect() {
