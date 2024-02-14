@@ -1,5 +1,9 @@
+import { ObjectId } from "mongodb";
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
+import Provider from "../Shared/dogecoin-core";
+import Decoder from "../Shared/dogecoin-core/decoder";
+import { HOST, PASS, PORT, USER } from "../Shared/indexer-helper/config";
 import { DecodeJSON } from "../Shared/indexer-helper/function-helper";
 import {
   DOGEDRC,
@@ -7,6 +11,7 @@ import {
   DoginalsInputTransaction,
   InscribedData,
   ValidMethods,
+  outputDecode,
 } from "../Shared/indexer-helper/types";
 
 interface TransactionsInput {
@@ -17,6 +22,13 @@ interface TransactionsInput {
 const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
 
 const MAX_ARRAYCACHE = 80_000;
+
+const DogecoinClient = new Provider({
+  user: USER,
+  pass: PASS,
+  host: HOST,
+  port: PORT,
+});
 
 const InscriptionTransferWorker = async (
   SameBlockDoginalsData: Doginals[],
@@ -79,12 +91,8 @@ const InscriptionTransferWorker = async (
       })
     );
 
-<<<<<<< Updated upstream
-    const FlatedTransfers: InscribedData[] = ValidTransfers_.flat(1);
-=======
     const FlatedTransfers = ValidTransfers_.flat(1);
 
->>>>>>> Stashed changes
 
     if (
       ValidTransfers_.filter((a) => a !== undefined).length !== InputHash.length
@@ -145,11 +153,8 @@ const InscriptionTransferWorker = async (
     //Now lets get All the Transaction Info for those hash
     const UniqueTransactionsInputs: string[] = [...new Set(InputTransactions)];
 
-
-
-    const LoadTransactionForInputs = await DataQuery.GetTransactionPerHash(
-      UniqueTransactionsInputs
-    );
+    const LoadTransactionForInputs =
+      (await DataQuery.GetTransactionPerHash(UniqueTransactionsInputs)) || [];
 
     const UniqueInscriptions: string[] = [...new Set(Inscriptions)];
 
@@ -166,11 +171,23 @@ const InscriptionTransferWorker = async (
 
         //Now lets find the transactions
 
-        const IsTransactionFound = LoadTransactionForInputs?.find(
+        let IsTransactionFound = LoadTransactionForInputs?.find(
           (a) => a.txId === hash
         );
 
-        if (!IsTransactionFound) throw new Error("Faild to get Transaction");
+        if (!IsTransactionFound) {
+          const TransactionFromNode = await DogecoinClient.GetTransaction(hash);
+
+          if (!TransactionFromNode) {
+            throw new Error("Faild to get Transaction from Node");
+          }
+
+          const DecodedNodeTransaction = Decoder(TransactionFromNode);
+          IsTransactionFound = {
+            ...DecodedNodeTransaction,
+            _id: new ObjectId(),
+          };
+        }
 
         const InputDatasValues = IsTransactionFound.outputs.find(
           (a: { hash: string; value: number }) => {
