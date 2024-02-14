@@ -1,5 +1,4 @@
-import * as Bitcore from "bitcoin-core";
-
+const Bitcore = require("bitcoin-core");
 interface ConnectionArg {
   user: string;
   pass: string;

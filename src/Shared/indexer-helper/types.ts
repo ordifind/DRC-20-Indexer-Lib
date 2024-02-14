@@ -117,3 +117,10 @@ export interface DoginalsInputTransaction {
   index: number;
   time: number;
 }
+export type Outputdata = {
+  hash: string;
+  value: number;
+};
+export interface outputDecode {
+  outputs: Outputdata[];
+}

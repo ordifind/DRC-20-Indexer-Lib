@@ -38,4 +38,4 @@ export const MongoCollectionIndexerStatus =
 export const PORT = Number(Process.PORT) || 22555;
 export const HOST = Process.HOST || "0.0.0.0";
 export const PASS = Process.PASS || "";
-export const USER = Process.USER || "";
+export const USER = Process.NAME || "";
