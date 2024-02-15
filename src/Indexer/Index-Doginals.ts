@@ -272,17 +272,8 @@ const IndexDoginals = async (data: Doginals[]) => {
                 amount: DecimalToString(
                   AddDecimals(StringToDecimals(e.amount), ValidateMint)
                 ),
-                transferable: UpdateBalanceValue(
-                  IsUserInBalanceDataBase,
-                  IsUserHoldingSameTokenInDataBase,
-                  NumberToDecimals(0),
-                  false,
-                  "transferable"
-                ),
-                updateTypes: CheckUpdateType(
-                  IsUserInBalanceDataBase,
-                  IsUserHoldingSameTokenInDataBase
-                ),
+                transferable: e.transferable,
+                updateTypes: e.updateTypes,
               };
             }
           );
@@ -484,6 +475,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         const IsInscriptionInscribe = await BalanceQuery.LoadInscribeId(
           inscriptionData.inscriptionId
         );
+
         if (!IsInscriptionInscribe) {
           DoginalsLogs.push({
             tick: DRCData.tick,
@@ -589,7 +581,6 @@ const IndexDoginals = async (data: Doginals[]) => {
                 : {
                     tick: e.tick,
                     amount: e.amount,
-
                     transferable: DecimalToString(
                       SubDecimals(
                         StringToDecimals(e.transferable),
@@ -675,17 +666,8 @@ const IndexDoginals = async (data: Doginals[]) => {
                 amount: DecimalToString(
                   AddDecimals(StringToDecimals(e.amount), UserTransferAmount)
                 ),
-                transferable: UpdateBalanceValue(
-                  isReceiverAddressinDB,
-                  isReceiverBalanceinDB,
-                  NumberToDecimals(0),
-                  false,
-                  "transferable"
-                ),
-                updateTypes: CheckUpdateType(
-                  isReceiverAddressinDB,
-                  isReceiverBalanceinDB
-                ),
+                transferable: e.transferable,
+                updateTypes: e.updateTypes,
               };
             });
         } else {
@@ -734,14 +716,14 @@ const IndexDoginals = async (data: Doginals[]) => {
       }
     }
 
+    let MongoPromise = [];
+
     if (DeploymentData.length !== 0) {
-      const Success = await TokenQuery.CreateDRC20Tokens(DeploymentData);
-      if (!Success) throw new Error(`Faild to Index Some Doginals Token!`);
+      MongoPromise.push(TokenQuery.CreateDRC20Tokens(DeploymentData));
     }
 
     if (BalanceData.length !== 0) {
-      const BalanceSuccess = await BalanceQuery.WriteBalance(BalanceData);
-      if (!BalanceSuccess) throw new Error(`Faild to Insert Balance Datas`);
+      MongoPromise.push(BalanceQuery.WriteBalance(BalanceData));
     }
 
     if (DeployedCache.length !== 0) {
@@ -750,13 +732,15 @@ const IndexDoginals = async (data: Doginals[]) => {
       );
 
       if (ValidUpdateStates.length !== 0) {
-        await TokenQuery.UpdateTokenState(ValidUpdateStates);
+        MongoPromise.push(TokenQuery.UpdateTokenState(ValidUpdateStates));
       }
     }
 
     if (DoginalsLogs.length !== 0) {
-      await BalanceQuery.StoreEventLogs(DoginalsLogs);
+      MongoPromise.push(BalanceQuery.StoreEventLogs(DoginalsLogs));
     }
+
+    await Promise.all(MongoPromise);
   } catch (error) {
     throw error;
   }
