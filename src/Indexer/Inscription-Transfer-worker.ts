@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
 import DataQuery from "../Shared/db-lib/conn/Data-Query";
 import Provider from "../Shared/dogecoin-core";
@@ -11,7 +10,6 @@ import {
   DoginalsInputTransaction,
   InscribedData,
   ValidMethods,
-  outputDecode,
 } from "../Shared/indexer-helper/types";
 
 interface TransactionsInput {
@@ -19,7 +17,9 @@ interface TransactionsInput {
   hash: string;
 }
 
-const InputsValueIndex: { hash: string; value: number; index: number }[] = [];
+const InputsValueIndex: Record<string, number> = {};
+
+const InscriptionContent: Record<string, string> = {};
 
 const MAX_ARRAYCACHE = 80_000;
 
@@ -73,8 +73,6 @@ const InscriptionTransferWorker = async (
       });
     });
 
-   
-
     //Now lets Find the Transfer Inscription contains input hash
 
     const ValidTransfers_ = await Promise.all(
@@ -93,7 +91,6 @@ const InscriptionTransferWorker = async (
 
     const FlatedTransfers = ValidTransfers_.flat(1);
 
-
     if (
       ValidTransfers_.filter((a) => a !== undefined).length !== InputHash.length
     ) {
@@ -110,19 +107,33 @@ const InscriptionTransferWorker = async (
 
     const Inscriptions: string[] = [];
 
+    const Inscribe_Transfer = new Set();
+
+    const DoginalsDataWithKey: Record<string, InscribedData> = {};
+
+    ValidTransfers.map((e) => {
+      const hash = e.hash;
+      const Index = e.index;
+
+      const key = `${hash}:${Index}`;
+
+      Inscribe_Transfer.add(key);
+
+      DoginalsDataWithKey[key] = e;
+    });
+
     for (const Transactions of BlockTransaction) {
       for (const [i, Inputs] of Transactions.Inputs.entries()) {
         const InputWithIndex = Inputs.hash.split(":");
-
         const InputIndex = InputWithIndex[1];
 
-        const IsDoginalsTransfer = ValidTransfers.find(
-          (a) =>
-            a.hash.toLowerCase() === InputWithIndex[0].toLowerCase() &&
-            Number(InputIndex) === a.index
-        );
+        const Key = `${InputWithIndex[0]}:${InputIndex}`;
+
+        const IsDoginalsTransfer = Inscribe_Transfer.has(Key);
 
         if (!IsDoginalsTransfer) continue;
+
+        const DoginalsData = DoginalsDataWithKey[Key];
 
         DoginalsTransactions.push({
           txId: Transactions.txId,
@@ -131,16 +142,16 @@ const InscriptionTransferWorker = async (
           block: Transactions.block,
           InscriptionPresentIndex: i,
           InscriptionUTXOs: {
-            hash: IsDoginalsTransfer.hash,
-            index: IsDoginalsTransfer.index,
-            address: IsDoginalsTransfer.address,
-            inscribed_id: IsDoginalsTransfer.inscribed_id,
+            hash: DoginalsData.hash,
+            index: 0,
+            address: DoginalsData.address,
+            inscribed_id: DoginalsData.inscribed_id,
           },
           index: Transactions.transaction.index,
           time: new Date(Transactions.transaction.timestamp).getTime(),
         });
 
-        Inscriptions.push(IsDoginalsTransfer.inscribed_id);
+        Inscriptions.push(DoginalsData.inscribed_id);
 
         const InputsHash = Transactions.Inputs.map(
           (e: any) => e.hash.split(":")[0]
@@ -162,6 +173,23 @@ const InscriptionTransferWorker = async (
       UniqueInscriptions
     );
 
+    LoadAllInscriptionMatched?.map((e) => {
+      const key = e.inscriptionId;
+      const content = e.content;
+      InscriptionContent[key] = content;
+    });
+
+    //Lets sets Transactionkey
+
+    const InputKey = new Set();
+    const InputTransactionsets: Record<string, any> = {};
+
+    LoadTransactionForInputs.map((e) => {
+      const txid = e.txId;
+      InputKey.add(txid);
+      InputTransactionsets[txid] = e;
+    });
+
     for (const DoginalsTransactionData of DoginalsTransactions) {
       for (const InputsData of DoginalsTransactionData.Inputs) {
         const InputHashIndex = InputsData.hash.split(":");
@@ -171,9 +199,9 @@ const InscriptionTransferWorker = async (
 
         //Now lets find the transactions
 
-        let IsTransactionFound = LoadTransactionForInputs?.find(
-          (a) => a.txId === hash
-        );
+        let TransactionController;
+
+        const IsTransactionFound = InputKey.has(hash);
 
         if (!IsTransactionFound) {
           const TransactionFromNode = await DogecoinClient.GetTransaction(hash);
@@ -183,13 +211,15 @@ const InscriptionTransferWorker = async (
           }
 
           const DecodedNodeTransaction = Decoder(TransactionFromNode);
-          IsTransactionFound = {
+
+          TransactionController = {
             ...DecodedNodeTransaction,
-            _id: new ObjectId(),
           };
+        } else {
+          TransactionController = InputTransactionsets[hash];
         }
 
-        const InputDatasValues = IsTransactionFound.outputs.find(
+        const InputDatasValues = TransactionController.outputs.find(
           (a: { hash: string; value: number }) => {
             const InputHashIndexSplited = a.hash.split(":");
             const hashTran = InputHashIndexSplited[0];
@@ -203,13 +233,9 @@ const InscriptionTransferWorker = async (
           }
         );
 
-        if (!InputDatasValues) throw new Error("Input value missmatch found !");
+        const InputKeyValue: string = `${InputDatasValues.transactionHash}:${InputDatasValues.index}`;
 
-        InputsValueIndex.push({
-          value: InputDatasValues.value,
-          hash: InputDatasValues.transactionHash,
-          index: InputDatasValues.index,
-        });
+        InputsValueIndex[InputKeyValue] = InputDatasValues.value;
       }
 
       const InscriptionInputHash = DoginalsTransactionData.Inputs.slice(
@@ -225,13 +251,13 @@ const InscriptionTransferWorker = async (
       const InputValues = [];
 
       for (const IH of InscriptionInputHash) {
-        const HashValue = InputsValueIndex.find(
-          (a) => a.hash === IH.hash && a.index === IH.index
-        );
+        const key = `${IH.hash}:${IH.index}`;
+        const HashValue = InputsValueIndex[key];
+
         if (!HashValue)
           throw new Error(`Output value not for for tx ${IH.hash} `);
 
-        InputValues.push(HashValue.value);
+        InputValues.push(HashValue);
       }
 
       const SumInputValues = InputValues.reduce((a, b) => a + b, 0) + 1;
@@ -253,17 +279,13 @@ const InscriptionTransferWorker = async (
       const InscriptionId =
         DoginalsTransactionData.InscriptionUTXOs.inscribed_id;
 
-      const InscriptionContent = LoadAllInscriptionMatched?.find(
-        (a) => a.inscriptionId.toLowerCase() === InscriptionId.toLowerCase()
-      )?.content;
+      const InscriptionContent_ = InscriptionContent[InscriptionId];
 
-      if (!InscriptionContent)
-        throw new Error(
-          `Content for Inscription: ${InscriptionContent} not found`
-        );
+      if (!InscriptionContent_)
+        throw new Error(`Content for Inscription: ${InscriptionId} not found`);
 
       const DecodedContent: DOGEDRC | undefined =
-        DecodeJSON(InscriptionContent);
+        DecodeJSON(InscriptionContent_);
 
       if (!DecodedContent)
         throw new Error("Decoded Inscribe-Transfer Json problem exist !!!");
