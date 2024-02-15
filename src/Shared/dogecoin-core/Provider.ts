@@ -45,7 +45,7 @@ class ConnectionProvider {
       await this.GetTransaction(txid);
     }
 
-    const TransactionData = await this.cli.getTransactionByHash(txid);
+    const TransactionData = await this.cli.getRawTransaction(txid, true);
     return TransactionData;
   }
 }

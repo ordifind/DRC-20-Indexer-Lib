@@ -73,12 +73,23 @@ const StartIndexer = async () => {
         continue;
       }
 
+      //lets track the performance timing
+
+      const StartTimer = performance.now();
+      Logger.Success(`Pharsing Blocks Inscription data before Indexing....`);
+
       const FormatedInscriptionData = await InscriptionsWorker(
         BlockData,
         BlocksToIndex
       );
 
-      Logger.Success(`Pharsing Blocks Inscription data before Indexing....`);
+      const EndTimer = performance.now();
+
+      const timeTook = (EndTimer - StartTimer) / 1000;
+
+      Logger.Success(
+        `Parsed Blocks ---- Took:= ${timeTook.toFixed(2)}sec ⏰⏰⏰ `
+      );
 
       if (!FormatedInscriptionData.length) {
         Logger.error(

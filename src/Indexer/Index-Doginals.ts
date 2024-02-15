@@ -216,7 +216,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         const IsUserHoldingSameTokenInStore =
           IsUserInBalanceToStore?.holding?.find(
-            (a) => a?.tick === Doginals.DRCData.tick
+            (a) => a?.tick === DRCData.tick
           );
 
         const IsUserInBalanceDataBase = BalanceDataBase.find(
@@ -225,7 +225,7 @@ const IndexDoginals = async (data: Doginals[]) => {
 
         const IsUserHoldingSameTokenInDataBase =
           IsUserInBalanceDataBase?.holding?.find(
-            (a) => a?.tick === Doginals.DRCData.tick
+            (a) => a?.tick === DRCData.tick
           );
 
         DoginalsLogs.push({
@@ -292,8 +292,20 @@ const IndexDoginals = async (data: Doginals[]) => {
             holding: [
               {
                 tick: Doginals.DRCData.tick,
-                amount: DecimalToString(ValidateMint),
-                transferable: "0",
+                amount: UpdateBalanceValue(
+                  IsUserInBalanceDataBase,
+                  IsUserHoldingSameTokenInDataBase,
+                  ValidateMint,
+                  true,
+                  "amount"
+                ),
+                transferable: UpdateBalanceValue(
+                  IsUserInBalanceDataBase,
+                  IsUserHoldingSameTokenInDataBase,
+                  NumberToDecimals(0),
+                  false,
+                  "transferable"
+                ),
                 updateTypes: CheckUpdateType(
                   IsUserInBalanceDataBase,
                   IsUserHoldingSameTokenInDataBase
@@ -683,8 +695,20 @@ const IndexDoginals = async (data: Doginals[]) => {
             holding: [
               {
                 tick: Doginals.DRCData.tick,
-                amount: DecimalToString(UserTransferAmount),
-                transferable: "0",
+                amount: UpdateBalanceValue(
+                  isReceiverAddressinDB,
+                  isReceiverBalanceinDB,
+                  UserTransferAmount,
+                  true,
+                  "amount"
+                ),
+                transferable: UpdateBalanceValue(
+                  isReceiverAddressinDB,
+                  isReceiverBalanceinDB,
+                  NumberToDecimals(0),
+                  false,
+                  "transferable"
+                ),
                 updateTypes: CheckUpdateType(
                   isReceiverAddressinDB,
                   isReceiverBalanceinDB
