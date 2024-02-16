@@ -9,6 +9,9 @@ import Logger from "../Shared/indexer-helper/logger";
 
 let LastBlock: number = 0;
 let LatestBlock: number = 0;
+let MaxBlockScan = MaxBlock;
+const BlockBehind = 4;
+
 const StartIndexer = async () => {
   try {
     const LatestBlock_ = await IndexerQuery.GetLatestBlock();
@@ -40,16 +43,20 @@ const StartIndexer = async () => {
 
       const StartingBlock: number = LastBlock;
 
-      if (new Decimal(LatestBlock).lte(StartingBlock) || LatestBlock === 0) {
+      if (
+        new Decimal(LatestBlock).lte(StartingBlock + BlockBehind) ||
+        LatestBlock === 0
+      ) {
         Logger.Success(`Trying to Sleep for 30sec before indexing new Block`);
         LatestBlock = await IndexerQuery.GetLatestBlock();
+        MaxBlockScan = LatestBlock - StartingBlock + 2;
         await Sleep(30);
         continue;
       }
 
       const BlocksToIndex: number[] = [];
 
-      for (let i = 0; i < MaxBlock; i++) {
+      for (let i = 0; i < MaxBlockScan; i++) {
         BlocksToIndex.push(StartingBlock + i);
       }
 
