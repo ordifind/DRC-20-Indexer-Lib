@@ -48,6 +48,13 @@ class ConnectionProvider {
     const TransactionData = await this.cli.getRawTransaction(txid, true);
     return TransactionData;
   }
+
+  async GetOutputValue(txid: string, index: number) {
+    const transaction = await this.GetTransaction(txid);
+
+    console.log(transaction);
+    return transaction;
+  }
 }
 
 export default ConnectionProvider;
