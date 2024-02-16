@@ -254,10 +254,24 @@ const InscriptionTransferWorker = async (
         const key = `${IH.hash}:${IH.index}`;
         const HashValue = InputsValueIndex[key];
 
-        if (!HashValue)
-          throw new Error(`Output value not for for tx ${IH.hash} `);
+        if (!HashValue) {
+          const OutputFromNode = await DogecoinClient.GetOutputValue(
+            IH.hash,
+            IH.index
+          );
+          if (!OutputFromNode)
+            throw new Error(`Output value not for for tx ${IH.hash} `);
 
-        InputValues.push(HashValue);
+          OutputFromNode.map((e: any) => {
+            const newKey = `${e.hash}:${e.index}`;
+            InputsValueIndex[newKey] = e.value;
+          });
+          const newHashValue = InputsValueIndex[key];
+          if (!newHashValue) throw new Error(`Output value mismatched`);
+          InputValues.push(newHashValue);
+        } else {
+          InputValues.push(HashValue);
+        }
       }
 
       const SumInputValues = InputValues.reduce((a, b) => a + b, 0) + 1;

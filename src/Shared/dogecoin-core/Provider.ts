@@ -52,8 +52,14 @@ class ConnectionProvider {
   async GetOutputValue(txid: string, index: number) {
     const transaction = await this.GetTransaction(txid);
 
-    console.log(transaction);
-    return transaction;
+    const Outputs = transaction.vout.map((e: any) => {
+      const value = e.value * 1e8;
+      const hash = txid;
+      const index = e.n;
+      return { value: value, index: index, hash: hash };
+    });
+
+    return Outputs;
   }
 }
 
