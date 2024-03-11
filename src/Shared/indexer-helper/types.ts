@@ -33,6 +33,7 @@ interface InscriptionMeta {
   block: number;
   index: number;
   inscriptionId: string;
+  location: string;
 }
 
 export interface Doginals {
@@ -98,15 +99,14 @@ export interface DoginalsLogs {
 }
 
 export interface DoginalsInputTransaction {
-  block: number;
-  txId: string;
+  blockNumber: number;
+  txid: string;
   InscriptionPresentIndex: number;
-  Inputs: { hash: string; index: string }[];
+  inputs: { txid: string; index: string }[];
   outputs: {
-    transactionHash: string;
     index: string;
-    address: string;
-    value: number;
+    script: string;
+    amount: number;
   }[];
   InscriptionUTXOs: {
     hash: string;
@@ -114,6 +114,7 @@ export interface DoginalsInputTransaction {
     address: string;
     inscribed_id: string;
   };
+  coinbase: boolean;
   index: number;
   time: number;
 }

@@ -28,7 +28,7 @@ const DataQuery = {
       const db = connectionProvider?.db(MongoDatabaseMain);
       const collection = db?.collection(MongoTransactions);
 
-      const Query = { block: { $in: block } };
+      const Query = { blockNumber: { $in: block } };
 
       const data = await collection?.find(Query).toArray();
 
@@ -44,7 +44,7 @@ const DataQuery = {
       const db = connectionProvider?.db(MongoDatabaseMain);
       const collection = db?.collection(MongoTransactions);
 
-      const Query = { txId: { $in: hash } };
+      const Query = { txid: { $in: hash } };
 
       const data = await collection?.find(Query).toArray();
 
@@ -59,7 +59,7 @@ const DataQuery = {
       const db = connectionProvider?.db(MongoDatabaseMain);
       const collection = db?.collection(MongoInscriptions);
 
-      const Query = { inscriptionId: { $in: ids } };
+      const Query = { id: { $in: ids } };
 
       const data = await collection?.find(Query).toArray();
 

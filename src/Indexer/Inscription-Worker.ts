@@ -12,10 +12,12 @@ const InscriptionsWorker = async (
   const ValidDoginals: Doginals[] = [];
 
   for (const Inscription of data) {
-    const { inscriptionId, time, txid, block, content, Outputs, index } =
+    const { id, time, txid, block, inscription, location, index, minter } =
       Inscription;
 
-    const DecodedInscriptionData: DOGEDRC | undefined = DecodeJSON(content);
+    const DecodedInscriptionData: DOGEDRC | undefined = DecodeJSON(
+      inscription.data
+    );
 
     if (!DecodedInscriptionData) continue;
 
@@ -23,18 +25,17 @@ const InscriptionsWorker = async (
 
     if (!IsValidPayload) continue;
 
-    const Address: string = Outputs.sort(
-      (a: any, b: any) => a.value - b.value
-    )[0]?.address;
+    const Address: string = minter;
 
     ValidDoginals.push({
       inscriptionData: {
-        inscriptionId: inscriptionId,
+        inscriptionId: id,
         sender: Address,
         index: index,
         block: block,
         time: time,
         hash: txid,
+        location: location,
       },
       DRCData: DecodedInscriptionData,
     });

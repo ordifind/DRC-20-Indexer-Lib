@@ -13,7 +13,9 @@ const IndexerQuery = {
       const collection = db?.collection(MongoCollectionIndexerStatus || "");
       const Query = {};
       const data = await collection?.find(Query).toArray();
-      const LastBlockScanned = data?.length ? data[0].LastBlock : undefined;
+      const LastBlockScanned = data?.length
+        ? data[0].LastInscriptionIndexedBlock
+        : undefined;
       return LastBlockScanned;
     } catch (error) {
       throw error;
@@ -50,7 +52,7 @@ const IndexerQuery = {
       const Query = {};
       const data = await collection?.find(Query).toArray();
       const LastBlockScanned = data?.length
-        ? data[0].LastIndexedBlock
+        ? data[0].LastIndexedBlock - 1
         : undefined;
       return LastBlockScanned;
     } catch (error) {

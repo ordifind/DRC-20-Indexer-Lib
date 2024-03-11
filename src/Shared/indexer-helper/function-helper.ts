@@ -14,10 +14,16 @@ import {
   ValidMethods,
 } from "./types";
 import Decimal from "decimal.js";
+import * as bitcoin from "bitcoinjs-lib";
 
-export const DecodeJSON = <T>(jsonData: string): T | undefined => {
+export const HexToRaw = (data: string) => {
+  return Buffer.from(data, "hex").toString("utf-8");
+};
+
+export const DecodeJSON = <T>(hex: string): T | undefined => {
   try {
-    const JSONDecode = JSON.parse(BufferToString(jsonData));
+    const UTF8 = HexToRaw(hex);
+    const JSONDecode = JSON.parse(BufferToString(UTF8));
 
     const tick: string = JSONDecode?.tick.toLowerCase();
 
@@ -234,4 +240,31 @@ export const FormatBalance = (data: BalanceDoginals[]) => {
 
 export const Sleep = async (timer: number = 20): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, timer * 1000));
+};
+
+export const ReverseHash = (hash: string) => {
+  return Buffer.from(hash, "hex").reverse().toString("hex");
+};
+export const dogecoinNetwork = {
+  messagePrefix: "\x19Dogecoin Signed Message:\n",
+  bech32: "bc",
+  bip32: {
+    public: 0x02facafd,
+    private: 0x02fac398,
+  },
+  pubKeyHash: 0x1e,
+  scriptHash: 0x16,
+  wif: 0x9e,
+};
+
+export const OutputScriptToAddress = (script: string) => {
+  try {
+    const outputScriptDecoded = bitcoin.address.fromOutputScript(
+      Buffer.from(script, "hex"),
+      dogecoinNetwork
+    );
+    return outputScriptDecoded;
+  } catch (error) {
+    return script;
+  }
 };
