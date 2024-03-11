@@ -130,7 +130,7 @@ const InscriptionTransferWorker = async (
     });
 
     for (const Transactions of BlockTransaction) {
-      for (const [i, inputs] of Transactions.Inputs.entries()) {
+      for (const [i, inputs] of Transactions.inputs.entries()) {
         const inputhash = ReverseHash(inputs.txid);
         const vinInput = inputs.vin;
 
