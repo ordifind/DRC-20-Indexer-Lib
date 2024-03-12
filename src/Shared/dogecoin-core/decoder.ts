@@ -7,7 +7,7 @@ export default function Decoder(txData: any): outputDecode {
   const txid = txData.txid;
 
   const outputs: Outputdata[] = vout.map((e: { value: number; n: number }) => {
-    return { hash: `${txid}:${e.n}`, value: e.value * 1e8 };
+    return { hash: `${txid}`, amount: e.value * 1e8, index: e.n };
   });
 
   return { outputs: outputs };

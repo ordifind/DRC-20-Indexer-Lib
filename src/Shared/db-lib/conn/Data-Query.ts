@@ -12,7 +12,9 @@ const DataQuery = {
       const db = connectionProvider?.db(MongoDatabaseMain);
       const collection = db?.collection(MongoInscriptions);
 
-      const Query = { block: { $in: block } };
+      const Query = {
+        block: { $in: block },
+      };
 
       const data = await collection?.find(Query).toArray();
 

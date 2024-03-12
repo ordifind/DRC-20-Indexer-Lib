@@ -3,7 +3,7 @@ import {
   MongoDatabase,
 } from "../../indexer-helper/config";
 import { DeployedCache, DoginalsDeployment } from "../../indexer-helper/types";
-import { DecimalToString, NumberToDecimals } from "../../utils/decimalsConvert";
+import { DecimalToString } from "../../utils/decimalsConvert";
 import GetConnection from "./connection";
 
 const TokenQuery = {

@@ -16,14 +16,10 @@ import {
 import Decimal from "decimal.js";
 import * as bitcoin from "bitcoinjs-lib";
 
-export const HexToRaw = (data: string) => {
-  return Buffer.from(data, "hex").toString("utf-8");
-};
-
 export const DecodeJSON = <T>(hex: string): T | undefined => {
   try {
-    const UTF8 = HexToRaw(hex);
-    const JSONDecode = JSON.parse(BufferToString(UTF8));
+    const UTF8 = BufferToString(hex);
+    const JSONDecode = JSON.parse(UTF8);
 
     const tick: string = JSONDecode?.tick.toLowerCase();
 
@@ -38,7 +34,7 @@ export const BufferToString = (Buffer_: string): string => {
 
 export const ValidatePayloads = (data: DOGEDRC): boolean => {
   if (data.p !== Protocol_Symbol) return false;
-  const DecimalReg = /[eE]/;
+  const DecimalReg = /[eE\s]/g;
 
   if (!data.tick) return false;
 
@@ -52,12 +48,14 @@ export const ValidatePayloads = (data: DOGEDRC): boolean => {
 
   if (data.max && typeof data.max !== "string") return false;
 
-  if (data.amt && isNaN(data.amt)) return false;
+  if (data.amt && isNaN(Number(data.amt))) return false;
 
   if (data.amt && DecimalReg.test(String(data.amt))) return false;
+  if (data.max && DecimalReg.test(String(data.max))) return false;
+  if (data.lim && DecimalReg.test(String(data.lim))) return false;
 
-  if (data.lim && isNaN(data.lim)) return false;
-  if (data.max && isNaN(data.max)) return false;
+  if (data.lim && isNaN(Number(data.lim))) return false;
+  if (data.max && isNaN(Number(data.max))) return false;
 
   if (
     data.amt &&

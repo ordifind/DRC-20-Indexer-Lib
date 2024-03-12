@@ -1,5 +1,5 @@
-import { Protocol_Symbol } from "./config";
 import Decimal from "decimal.js";
+import { Protocol_Symbol } from "./config";
 export enum ValidMethods {
   deploy = "deploy",
   mint = "mint",
@@ -20,9 +20,9 @@ export interface DOGEDRC {
   p: DogeSymbol;
   op: ValidMethods;
   tick: string;
-  amt?: number;
-  max?: number;
-  lim?: number;
+  amt?: string;
+  max?: string;
+  lim?: string;
 }
 
 interface InscriptionMeta {
@@ -102,7 +102,7 @@ export interface DoginalsInputTransaction {
   blockNumber: number;
   txid: string;
   InscriptionPresentIndex: number;
-  inputs: { txid: string; index: string }[];
+  inputs: { txid: string; vin: string }[];
   outputs: {
     index: string;
     script: string;
@@ -120,7 +120,8 @@ export interface DoginalsInputTransaction {
 }
 export type Outputdata = {
   hash: string;
-  value: number;
+  amount: number;
+  index: number;
 };
 export interface outputDecode {
   outputs: Outputdata[];

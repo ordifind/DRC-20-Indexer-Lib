@@ -54,6 +54,12 @@ const StartIndexer = async () => {
         continue;
       }
 
+      const BlockDifference = LatestBlock - StartingBlock;
+
+      if (BlockDifference <= MaxBlock) {
+        MaxBlockScan = BlockDifference - BlockBehind;
+      }
+
       const BlocksToIndex: number[] = [];
 
       for (let i = 0; i < MaxBlockScan; i++) {
@@ -61,7 +67,6 @@ const StartIndexer = async () => {
       }
 
       const BlockData = await DataQuery.LoadInscriptions(BlocksToIndex);
-
       LastBlock = BlocksToIndex[BlocksToIndex.length - 1] + 1;
 
       Logger.Success(

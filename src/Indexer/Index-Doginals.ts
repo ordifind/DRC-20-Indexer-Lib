@@ -17,7 +17,6 @@ import {
   ValidateMintPayloads,
 } from "../Shared/indexer-helper/function-helper";
 import BalanceQuery from "../Shared/db-lib/conn/Balance-Query";
-import Decimal from "decimal.js";
 import {
   AddDecimals,
   DecimalToString,
@@ -25,6 +24,7 @@ import {
   StringToDecimals,
   SubDecimals,
 } from "../Shared/utils/decimalsConvert";
+import Decimal from "decimal.js";
 
 const IndexDoginals = async (data: Doginals[]) => {
   try {
@@ -65,7 +65,6 @@ const IndexDoginals = async (data: Doginals[]) => {
       TokenDatafromDB?.map((e) => {
         const { tick, supply, limit, MintedAmount, isMinted, completedBlock } =
           e;
-
         DeployedCache.push({
           tick: tick,
           supply: StringToDecimals(supply),
@@ -78,7 +77,6 @@ const IndexDoginals = async (data: Doginals[]) => {
 
     for (const Doginals of data) {
       const { inscriptionData, DRCData } = Doginals;
-
       const Sender = inscriptionData.sender;
 
       if (DRCData.op === ValidMethods.deploy) {
@@ -88,8 +86,8 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const Supply = NumberToDecimals(Number(DRCData.max) || 0);
-        const Limit = NumberToDecimals(Number(DRCData.lim) || 0);
+        const Supply = NumberToDecimals(DRCData.max || "0");
+        const Limit = NumberToDecimals(DRCData.lim || "0");
 
         if (IsTokenExistInCache) {
           DoginalsLogs.push({
@@ -111,7 +109,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           tick: DRCData.tick,
           supply: Supply,
           limit: Limit,
-          MintedAmount: NumberToDecimals(0),
+          MintedAmount: NumberToDecimals("0"),
           isMinted: false,
           MintedBlock: 0,
         });
@@ -149,7 +147,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const UserMintAmount = NumberToDecimals(Number(DRCData.amt));
+        const UserMintAmount = NumberToDecimals(DRCData.amt);
 
         if (!IsTokenDeployed) {
           DoginalsLogs.push({
@@ -205,7 +203,6 @@ const IndexDoginals = async (data: Doginals[]) => {
           continue;
         }
         IsTokenDeployed.MintedAmount = AddDecimals(MintedAmount, ValidateMint);
-
         IsTokenDeployed.MintedBlock = inscriptionData.block;
 
         //Now Check if User Exist in Balance Cache or Not
@@ -253,7 +250,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             transferable: UpdateBalanceValue(
               IsUserInBalanceDataBase,
               IsUserHoldingSameTokenInDataBase,
-              NumberToDecimals(0),
+              NumberToDecimals("0"),
               false,
               "transferable"
             ),
@@ -293,7 +290,7 @@ const IndexDoginals = async (data: Doginals[]) => {
                 transferable: UpdateBalanceValue(
                   IsUserInBalanceDataBase,
                   IsUserHoldingSameTokenInDataBase,
-                  NumberToDecimals(0),
+                  NumberToDecimals("0"),
                   false,
                   "transferable"
                 ),
@@ -311,7 +308,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         const IsTokenExistInCache = DeployedCache.find(
           (a) => a.tick === DRCData.tick
         );
-        const UserTransferAmount = NumberToDecimals(Number(DRCData.amt) || 0);
+        const UserTransferAmount = NumberToDecimals(DRCData.amt || "0");
 
         if (!IsTokenExistInCache) {
           DoginalsLogs.push({
@@ -371,7 +368,7 @@ const IndexDoginals = async (data: Doginals[]) => {
         const TransferAbleBalance = StringToDecimals(BalanceTree.transferable);
         const AmountBalance = StringToDecimals(BalanceTree.amount);
 
-        if (AmountBalance.isNeg()) {
+        if (AmountBalance.isNegative()) {
           throw Error(`Neg Balance found !`);
         }
 
@@ -468,7 +465,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           (a) => a.tick === DRCData.tick
         );
 
-        const UserTransferAmount = NumberToDecimals(Number(DRCData.amt) || 0);
+        const UserTransferAmount = NumberToDecimals(DRCData.amt || "0");
 
         //Now lets Check if the inscription is inscriped or not
 
@@ -552,22 +549,6 @@ const IndexDoginals = async (data: Doginals[]) => {
         const SenderBalanceAmount = StringToDecimals(Sender.amount);
         const SenderBalanceTransferable = StringToDecimals(Sender.transferable);
 
-        if (SenderBalanceTransferable.lt(UserTransferAmount)) {
-          DoginalsLogs.push({
-            tick: DRCData.tick,
-            amount: DecimalToString(UserTransferAmount),
-            inscripition_id: inscriptionData.inscriptionId,
-            txid: inscriptionData.hash,
-            block: inscriptionData.block,
-            sender: inscriptionData.sender,
-            receiver: inscriptionData.receiver || "",
-            isValid: false,
-            reasonIgnore: "User Transferable Balance is Less then Amount",
-            event: "transfer",
-          });
-          continue;
-        }
-
         const NewSenderTransferableBalance = SubDecimals(
           SenderBalanceTransferable,
           UserTransferAmount
@@ -581,12 +562,7 @@ const IndexDoginals = async (data: Doginals[]) => {
                 : {
                     tick: e.tick,
                     amount: e.amount,
-                    transferable: DecimalToString(
-                      SubDecimals(
-                        StringToDecimals(e.transferable),
-                        UserTransferAmount
-                      )
-                    ),
+                    transferable: DecimalToString(NewSenderTransferableBalance),
                     updateTypes: e.updateTypes,
                   };
             }
@@ -648,7 +624,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             transferable: UpdateBalanceValue(
               isReceiverAddressinDB,
               isReceiverBalanceinDB,
-              NumberToDecimals(0),
+              NumberToDecimals("0"),
               false,
               "transferable"
             ),
@@ -687,7 +663,7 @@ const IndexDoginals = async (data: Doginals[]) => {
                 transferable: UpdateBalanceValue(
                   isReceiverAddressinDB,
                   isReceiverBalanceinDB,
-                  NumberToDecimals(0),
+                  NumberToDecimals("0"),
                   false,
                   "transferable"
                 ),

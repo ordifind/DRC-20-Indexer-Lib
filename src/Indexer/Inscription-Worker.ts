@@ -11,14 +11,13 @@ const InscriptionsWorker = async (
 ): Promise<Doginals[]> => {
   const ValidDoginals: Doginals[] = [];
 
-  for (const Inscription of data) {
+  for (const Inscriptions of data) {
     const { id, time, txid, block, inscription, location, index, minter } =
-      Inscription;
+      Inscriptions;
 
     const DecodedInscriptionData: DOGEDRC | undefined = DecodeJSON(
       inscription.data
     );
-
     if (!DecodedInscriptionData) continue;
 
     const IsValidPayload = ValidatePayloads(DecodedInscriptionData);

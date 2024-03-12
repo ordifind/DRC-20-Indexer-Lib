@@ -203,7 +203,7 @@ const InscriptionTransferWorker = async (
 
       for (const InputsData of DoginalsTransactionData.inputs) {
         const hash = ReverseHash(InputsData.txid);
-        const Index = InputsData.index;
+        const Index = InputsData.vin;
         //Now lets find the transactions
 
         let TransactionController;
@@ -233,7 +233,6 @@ const InscriptionTransferWorker = async (
             }
           }
         );
-
         const InputKeyValue: string = `${hash}:${InputDatasValues.index}`;
 
         InputsValueIndex[InputKeyValue] = InputDatasValues.amount;
@@ -244,7 +243,7 @@ const InscriptionTransferWorker = async (
         .map((e) => {
           return {
             hash: ReverseHash(e.txid),
-            index: Number(e.index),
+            index: Number(e.vin),
           };
         });
 

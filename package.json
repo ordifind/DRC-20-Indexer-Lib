@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "big-integer": "^1.6.52",
     "bitcoin-core": "^4.1.0",
     "bitcoinjs-lib": "^6.1.5",
     "decimal.js": "^10.4.3",
