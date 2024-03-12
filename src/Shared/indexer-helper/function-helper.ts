@@ -9,18 +9,31 @@ import {
   BalanceData,
   BalanceDoginals,
   BalanceUpdateTypes,
+  BlockMethod,
   DOGEDRC,
   Doginals,
+  DomainMethod,
   ValidMethods,
 } from "./types";
 import Decimal from "decimal.js";
 import * as bitcoin from "bitcoinjs-lib";
 
-export const DecodeJSON = <T>(hex: string): T | undefined => {
-  try {
-    const UTF8 = BufferToString(hex);
-    const JSONDecode = JSON.parse(UTF8);
+const ValidNameSpace = ["oifi", "dogim", "doge", "x", "elon"];
 
+export const HexToRaw = (data: string) => {
+  return Buffer.from(data, "hex").toString("utf-8");
+};
+
+export const DecodeJSON = <T>(
+  hex: string,
+  drc: boolean = true
+): T | undefined => {
+  try {
+    const UTF8 = HexToRaw(hex);
+
+    const JSONDecode = JSON.parse(BufferToString(UTF8));
+
+    if (!drc) return JSONDecode;
     const tick: string = JSONDecode?.tick.toLowerCase();
 
     if (!tick) return;
@@ -264,5 +277,60 @@ export const OutputScriptToAddress = (script: string) => {
     return outputScriptDecoded;
   } catch (error) {
     return script;
+  }
+};
+
+export const ExtractOtherDoginals = (hex: string) => {
+  try {
+    const DecodedJson = DecodeJSON<DomainMethod>(hex, false);
+
+    if (!DecodedJson) return;
+
+    if (DecodedJson.p.toLowerCase() !== "dns") return;
+
+    if (DecodedJson.op.toLowerCase() !== "reg") return;
+
+    if (!DecodedJson.name) return;
+
+    const NameToReg = DecodedJson.name;
+
+    if (/\s+/g.test(NameToReg)) return;
+
+    const namespace = NameToReg.split(".")[1];
+
+    if (!ValidNameSpace.includes(namespace)) return;
+
+    return DecodedJson;
+  } catch (error) {
+    const UTF8 = HexToRaw(hex);
+
+    if (/\s+/g.test(UTF8)) return; //Space found
+
+    const IsDogemapOrDomain = UTF8.split(".").length === 2;
+
+    if (!IsDogemapOrDomain) return;
+
+    const DOGEMAP_PATTEN_FORMAT = /^(?:0|[1-9][0-9]*)\.dogemap$/m;
+
+    const IsDogemap = DOGEMAP_PATTEN_FORMAT.test(UTF8);
+
+    if (IsDogemap) {
+      const DogemapHandler: BlockMethod = {
+        p: "dogemap",
+        block: Number(UTF8.split(".")[0]),
+      };
+      return DogemapHandler;
+    }
+
+    const namespace = UTF8.split(".")[1];
+
+    if (!ValidNameSpace.includes(namespace)) return;
+
+    const domainHandler: DomainMethod = {
+      p: "dns",
+      op: "reg",
+      name: UTF8,
+    };
+    return domainHandler;
   }
 };

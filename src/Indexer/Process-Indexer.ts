@@ -6,6 +6,7 @@ import { Sleep } from "../Shared/indexer-helper/function-helper";
 import IndexDoginals from "./Index-Doginals";
 import InscriptionsWorker from "./Inscription-Worker";
 import Logger from "../Shared/indexer-helper/logger";
+import IndexDogemapAndDomain from "./index-dogemap-domain";
 
 let LastBlock: number = 0;
 let LatestBlock: number = 0;
@@ -95,6 +96,14 @@ const StartIndexer = async () => {
         BlocksToIndex
       );
 
+      /**
+       * Now lets index dogemaps
+       *
+       */
+
+      if (FormatedInscriptionData.OtherDoginals)
+        await IndexDogemapAndDomain(FormatedInscriptionData.OtherDoginals);
+
       const EndTimer = performance.now();
 
       const timeTook = (EndTimer - StartTimer) / 1000;
@@ -103,7 +112,7 @@ const StartIndexer = async () => {
         `Parsed Blocks ---- Took:= ${timeTook.toFixed(2)}sec ⏰⏰⏰ `
       );
 
-      if (!FormatedInscriptionData.length) {
+      if (!FormatedInscriptionData.DRC20.length) {
         Logger.error(
           `No Valid DRC-20 Inscription found between blocks ${
             BlocksToIndex[0]
@@ -115,7 +124,7 @@ const StartIndexer = async () => {
 
       Logger.Success(`Stating Inscription Indexing Worker.....`);
 
-      await IndexDoginals(FormatedInscriptionData);
+      await IndexDoginals(FormatedInscriptionData.DRC20);
 
       Logger.Success(`Successfully Indexed the Inscription from the Blocks `);
 

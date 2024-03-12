@@ -7,6 +7,10 @@ export enum ValidMethods {
   inscribe_transfer = "transfer",
 }
 
+export enum MethodsDNS {
+  dns = "dns",
+}
+
 export enum BalanceUpdateTypes {
   PUSH_NEW_TOKEN = "PUSH_NEW_TOKEN",
   UPDATE_TOKEN_VALUE = "UPDATE_TOKEN_VALUE",
@@ -14,6 +18,17 @@ export enum BalanceUpdateTypes {
 }
 
 type DogeSymbol = typeof Protocol_Symbol;
+
+export interface DomainMethod {
+  p: "dns";
+  op: string;
+  name: string;
+}
+
+export interface BlockMethod {
+  p: "dogemap";
+  block: number;
+}
 
 export interface DOGEDRC {
   method: ValidMethods;
@@ -39,6 +54,11 @@ interface InscriptionMeta {
 export interface Doginals {
   inscriptionData: InscriptionMeta;
   DRCData: DOGEDRC;
+}
+
+export interface OtherDoginalsBox {
+  inscriptionData: InscriptionMeta;
+  doginal: DomainMethod | BlockMethod;
 }
 
 export interface DoginalsDeployment {
@@ -125,4 +145,15 @@ export type Outputdata = {
 };
 export interface outputDecode {
   outputs: Outputdata[];
+}
+
+export interface Dogemap {
+  inscription_id: string;
+  blockNumber: number;
+}
+
+export interface domains {
+  inscription_id: string;
+  content: string;
+  namespace: string;
 }

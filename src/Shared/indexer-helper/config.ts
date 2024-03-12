@@ -13,6 +13,8 @@ export const MaxBlock = Number(Process.MaxBlock);
 export const BlockDiff = Number(Process.BlockDiff);
 
 export const MongoDatabase = Process.MongoDatabase;
+export const DogemapCollection = Process.dogemapcollection;
+export const domaincollection = Process.domaincollection;
 
 export const MongoCollectionBalance = Process.MongoCollectionBalance;
 
