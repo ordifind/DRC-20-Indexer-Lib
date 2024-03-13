@@ -22,7 +22,7 @@ export const IndexDogemapAndDomain = async (data: OtherDoginalsBox[]) => {
       if (p === "dogemap") {
         const dogemapInscribed = doginal.doginal.block;
 
-        if (new Decimal(dogemapInscribed).lte(block)) continue;
+        if (!new Decimal(dogemapInscribed).lte(block)) continue;
 
         if (
           !new Decimal(dogemapInscribed).isInt() ||

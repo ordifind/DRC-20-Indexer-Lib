@@ -101,6 +101,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Token Already Deployed",
             event: "deploy",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -138,6 +139,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           receiver: inscriptionData.sender || "",
           isValid: true,
           event: "deploy",
+          time: inscriptionData.time,
         });
       } else if (DRCData.op === ValidMethods.mint) {
         //Check if Token is Deployed
@@ -160,6 +162,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Token Not Deployed",
             event: "mint",
+            time: inscriptionData.time,
           });
           continue;
         } //token not Deployed Yet
@@ -177,6 +180,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Token Already 100% Minted",
             event: "mint",
+            time: inscriptionData.time,
           });
           continue;
         } //token minted
@@ -199,6 +203,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: ValidateMint,
             event: "mint",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -234,6 +239,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           receiver: inscriptionData.sender || "",
           isValid: true,
           event: "mint",
+          time: inscriptionData.time,
         });
 
         //lets process update
@@ -321,6 +327,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Token Not Deployed",
             event: "inscribe-transfer",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -361,6 +368,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "User or Token did not exist",
             event: "inscribe-transfer",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -383,6 +391,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "User Balance is less then Transfer Amount",
             event: "inscribe-transfer",
+            time: inscriptionData.time,
           });
 
           continue;
@@ -412,6 +421,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           receiver: inscriptionData.sender || "",
           isValid: true,
           event: "inscribe-transfer",
+          time: inscriptionData.time,
         });
 
         if (IsBalanceinCache) {
@@ -485,6 +495,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Inscription is not transferable",
             event: "transfer",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -501,6 +512,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "Token Not Deployed",
             event: "transfer",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -542,6 +554,7 @@ const IndexDoginals = async (data: Doginals[]) => {
             isValid: false,
             reasonIgnore: "User or Token did not exist",
             event: "transfer",
+            time: inscriptionData.time,
           });
           continue;
         }
@@ -687,6 +700,7 @@ const IndexDoginals = async (data: Doginals[]) => {
           sender: inscriptionData.sender,
           receiver: inscriptionData.receiver || "",
           isValid: true,
+          time: inscriptionData.time,
           event: "transfer",
         });
       }

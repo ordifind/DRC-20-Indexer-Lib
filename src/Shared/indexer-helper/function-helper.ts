@@ -30,19 +30,13 @@ export const DecodeJSON = <T>(
 ): T | undefined => {
   try {
     const UTF8 = HexToRaw(hex);
-
-    const JSONDecode = JSON.parse(BufferToString(UTF8));
-
+    const JSONDecode = JSON.parse(UTF8);
     if (!drc) return JSONDecode;
     const tick: string = JSONDecode?.tick.toLowerCase();
 
     if (!tick) return;
     return { ...JSONDecode, tick: tick };
   } catch (error) {}
-};
-
-export const BufferToString = (Buffer_: string): string => {
-  return Buffer.from(Buffer_, "hex").toString("utf-8");
 };
 
 export const ValidatePayloads = (data: DOGEDRC): boolean => {
@@ -283,8 +277,7 @@ export const OutputScriptToAddress = (script: string) => {
 export const ExtractOtherDoginals = (hex: string) => {
   try {
     const DecodedJson = DecodeJSON<DomainMethod>(hex, false);
-
-    if (!DecodedJson) return;
+    if (!DecodedJson) throw new Error("Invalid JSON");
 
     if (DecodedJson.p.toLowerCase() !== "dns") return;
 

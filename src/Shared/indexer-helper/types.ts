@@ -113,6 +113,7 @@ export interface DoginalsLogs {
   txid: string;
   sender?: string;
   receiver: string;
+  time: number;
   isValid: boolean;
   reasonIgnore?: string;
   event: "deploy" | "mint" | "inscribe-transfer" | "transfer";
