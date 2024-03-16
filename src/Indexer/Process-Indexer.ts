@@ -11,7 +11,7 @@ import IndexDogemapAndDomain from "./index-dogemap-domain";
 let LastBlock: number = 0;
 let LatestBlock: number = 0;
 let MaxBlockScan = MaxBlock;
-const BlockBehind = 2;
+const BlockBehind = 1;
 
 const StartIndexer = async () => {
   try {
