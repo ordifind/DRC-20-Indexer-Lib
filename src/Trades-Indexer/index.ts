@@ -30,9 +30,8 @@ const MongoTradeIndexer = async () => {
       const Blockbehind = IndexerDeamonBlock - StartBlock;
 
       if (Blockbehind + 1 === 0) {
-        await Sleep(2 * 1000);
         Logger.Success("Sleeping Trade Deamon...");
-
+        await Sleep(2);
         const LatestDeamonBlock = await IndexerQuery.getLastScannedBlock();
 
         if (LatestDeamonBlock) IndexerDeamonBlock = LatestDeamonBlock;
