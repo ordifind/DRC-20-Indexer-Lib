@@ -48,10 +48,10 @@ const StartIndexer = async () => {
         new Decimal(LatestBlock).lte(StartingBlock + BlockBehind) ||
         LatestBlock === 0
       ) {
-        Logger.Success(`Trying to Sleep for 30sec before indexing new Block`);
+        Logger.Success(`Trying to Sleep for 2sec before indexing new Block`);
         LatestBlock = await IndexerQuery.GetLatestBlock();
         MaxBlockScan = LatestBlock - StartingBlock + 2;
-        await Sleep(30);
+        await Sleep(2);
         continue;
       }
 
