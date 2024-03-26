@@ -1,5 +1,7 @@
 import StartIndexer from "./Indexer/Process-Indexer";
-
+import MongoTradeIndexer from "./Trades-Indexer";
 (async () => {
-  await StartIndexer();
+  // const DRCindexer = StartIndexer();
+  const TradeIndexer = MongoTradeIndexer();
+  await Promise.all([TradeIndexer]);
 })();

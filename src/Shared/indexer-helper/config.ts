@@ -22,6 +22,8 @@ export const MongoCollectionTokens = Process.MongoCollectionTokens;
 
 export const MongoCollectionInscribed = Process.MongoCollectionInscribed;
 
+export const MongoCollectionTrades = Process.MongoEventTrades;
+
 export const MongoCollectionLogs = Process.MongoCollectionLogs;
 
 export const startBlock = Number(Process.startBlock) || 4609723;
@@ -33,6 +35,8 @@ export const MongoTransactions = Process.transactions || "";
 export const MongoDatabaseMain = Process.MongoDatabaseMain;
 
 export const MongoEventLogs = Process.MongoEventLogs || "";
+
+export const MongoDRCTrades = Process.MongoEventTrades;
 
 export const MongoCollectionIndexerStatus =
   Process.MongoCollectionIndexerStatus;

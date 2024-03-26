@@ -119,6 +119,19 @@ export interface DoginalsLogs {
   event: "deploy" | "mint" | "inscribe-transfer" | "transfer";
 }
 
+export interface Transactions {
+  blockNumber: number;
+  txid: string;
+  inputs: { txid: string; vin: string; script: string }[];
+  outputs: {
+    index: string;
+    script: string;
+    amount: number;
+  }[];
+  coinbase: boolean;
+  index: number;
+  time: number;
+}
 export interface DoginalsInputTransaction {
   blockNumber: number;
   txid: string;
@@ -157,4 +170,18 @@ export interface domains {
   inscription_id: string;
   content: string;
   namespace: string;
+}
+
+export interface Trades {
+  sender: string;
+  Receiver: string;
+  AmountInDoge: string;
+  AmountOutDRC: string;
+  txid: string;
+  inscription_id: string;
+  time: number;
+  block: number;
+  tick: string;
+  MarketMaker?: string;
+  PricePerToken: string;
 }

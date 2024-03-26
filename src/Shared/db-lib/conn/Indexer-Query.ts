@@ -21,7 +21,10 @@ const IndexerQuery = {
       throw error;
     }
   },
-  UpdatedLastScannedBlock: async (LastIndexedBlock: number) => {
+  UpdatedLastScannedBlock: async (
+    LastIndexedBlock: number,
+    Trade: boolean = false
+  ) => {
     try {
       const connectionProvider = await GetConnection();
       const db = connectionProvider?.db(MongoDatabase);
@@ -33,18 +36,24 @@ const IndexerQuery = {
         return await collection?.insertOne({
           type: "DRC-20-Core",
           LastIndexedBlock: LastIndexedBlock,
+          LastTradeIndexedBlock: LastIndexedBlock,
         });
       }
 
       await collection?.updateOne(
         { type: "DRC-20-Core" },
-        { $set: { LastIndexedBlock: LastIndexedBlock } }
+        {
+          $set: {
+            [Trade ? "LastTradeIndexedBlock" : "LastIndexedBlock"]:
+              LastIndexedBlock,
+          },
+        }
       );
     } catch (error) {
       throw error;
     }
   },
-  getLastScannedBlock: async () => {
+  getLastScannedBlock: async (Trade: boolean = false) => {
     try {
       const connectionProvider = await GetConnection();
       const db = connectionProvider?.db(MongoDatabase);
@@ -52,7 +61,7 @@ const IndexerQuery = {
       const Query = {};
       const data = await collection?.find(Query).toArray();
       const LastBlockScanned = data?.length
-        ? data[0].LastIndexedBlock - 1
+        ? data[0][Trade ? "LastTradeIndexedBlock" : "LastIndexedBlock"] - 1
         : undefined;
       return LastBlockScanned;
     } catch (error) {

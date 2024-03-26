@@ -12,7 +12,10 @@ import {
   BlockMethod,
   DOGEDRC,
   Doginals,
+  DoginalsLogs,
   DomainMethod,
+  Trades,
+  Transactions,
   ValidMethods,
 } from "./types";
 import Decimal from "decimal.js";
@@ -274,6 +277,20 @@ export const OutputScriptToAddress = (script: string) => {
   }
 };
 
+export const FormatTransactionFromDB = (data: any[]) => {
+  return data.map((e): Transactions => {
+    return {
+      txid: e.txid,
+      inputs: e.inputs,
+      outputs: e.outputs,
+      blockNumber: e.blockNumber,
+      time: e.time,
+      index: e.index,
+      coinbase: e.coinbase,
+    };
+  });
+};
+
 export const ExtractOtherDoginals = (hex: string) => {
   try {
     const DecodedJson = DecodeJSON<DomainMethod>(hex, false);
@@ -326,4 +343,99 @@ export const ExtractOtherDoginals = (hex: string) => {
     };
     return domainHandler;
   }
+};
+
+const Transaction = bitcoin.Transaction;
+
+const SigHashType = (byte: string): number | undefined => {
+  switch (byte) {
+    case "0x83":
+      return Transaction.SIGHASH_SINGLE | Transaction.SIGHASH_ANYONECANPAY;
+    case "0x82":
+      return Transaction.SIGHASH_NONE | Transaction.SIGHASH_ANYONECANPAY;
+    case "0x81":
+      return Transaction.SIGHASH_ALL | Transaction.SIGHASH_ANYONECANPAY;
+    case "0x01":
+      return Transaction.SIGHASH_ALL;
+    case "0x02":
+      return Transaction.SIGHASH_NONE;
+    case "0x03":
+      return Transaction.SIGHASH_SINGLE;
+    default:
+      return undefined;
+  }
+};
+
+export const IsValidSighash = (inputScript: string) => {
+  const Script = bitcoin.script.decompile(Buffer.from(inputScript, "hex"));
+
+  if (!Script || typeof Script[0] === "number" || !Script.length) return false;
+
+  const CompiledScript = Script[0].reverse();
+
+  const LastBytes = `0x` + CompiledScript.slice(0, 1).toString("hex");
+
+  const SignHashType = SigHashType(LastBytes);
+
+  if (!SignHashType) return false;
+
+  if (
+    SignHashType ===
+    (Transaction.SIGHASH_SINGLE | Transaction.SIGHASH_ANYONECANPAY)
+  )
+    return true;
+
+  return false;
+};
+
+export const FormatTrades = (
+  transaction: Transactions,
+  TransactionDoginals: DoginalsLogs
+): Trades | undefined => {
+  const Sender = TransactionDoginals.sender;
+
+  const Receiver = TransactionDoginals.receiver;
+
+  const AmountOut = TransactionDoginals.amount;
+
+  const AmountInDoge = transaction.outputs.find((a) => {
+    const Address = OutputScriptToAddress(a.script);
+    if (Sender === Address) return a;
+  });
+
+  if (!AmountInDoge) return;
+
+  let MarketMaker;
+
+  for (const output of transaction.outputs) {
+    const Address = OutputScriptToAddress(output.script);
+
+    if (Address === Sender) continue;
+    if (Address === Receiver) continue;
+
+    MarketMaker = Address;
+    break;
+  }
+
+  if (!AmountOut) return;
+
+  const PricePerToken = StringToDecimals(
+    String(AmountInDoge.amount / 10 ** 8)
+  ).div(StringToDecimals(AmountOut));
+
+  if (!Sender) return;
+
+  return {
+    sender: Sender,
+    Receiver: Receiver,
+    AmountInDoge: String(AmountInDoge.amount),
+    AmountOutDRC: AmountOut,
+    txid: transaction.txid,
+    inscription_id: TransactionDoginals.inscripition_id,
+    time: transaction.time,
+    block: transaction.blockNumber,
+    tick: TransactionDoginals.tick,
+    MarketMaker: MarketMaker,
+    PricePerToken: PricePerToken.toFixed(18),
+  };
 };
